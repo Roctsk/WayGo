@@ -3,11 +3,20 @@ from django.db import models
 
 
 class User(AbstractUser):
+    
+    ROLE_CHOICE = (
+        ("client", "Client"),
+        ("driver", "Driver"),
+        ("courier", "Courier"),
+    )
+
+    username = None
     phone = models.CharField(max_length=20, unique=True)
 
-    is_client = models.BooleanField(default=True)
-    is_driver = models.BooleanField(default=False)
-    is_courier = models.BooleanField(default=False)
+    role = models.CharField(max_length=30,choices=ROLE_CHOICE,default="client")
+
+    USERNAME_FIELD = "phone"
+    REQUIRED_FIELDS  = []
 
     def __str__(self):
         return self.phone
