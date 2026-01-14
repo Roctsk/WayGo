@@ -10,13 +10,10 @@ class User(AbstractUser):
         ("courier", "Courier"),
     )
 
-    username = None
     phone = models.CharField(max_length=20, unique=True)
 
     role = models.CharField(max_length=30,choices=ROLE_CHOICE,default="client")
 
-    USERNAME_FIELD = "phone"
-    REQUIRED_FIELDS  = []
 
     def __str__(self):
         return self.phone

@@ -12,7 +12,7 @@ class Courier(models.Model):
         ("foot","On foot"),       
     )
 
-    user = models.OneToOneField(User,on_delete=models.CASCADE, related_name="courier_profile")
+    user = models.OneToOneField(User,on_delete=models.CASCADE, related_name="courier")
 
     transport = models.CharField(max_length=20,choices=TRANSPORT_CHOICE, verbose_name="Транспорт")
     is_online  = models.BooleanField(default=False,verbose_name="Онлайн")
