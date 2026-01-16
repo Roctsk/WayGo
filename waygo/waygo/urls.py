@@ -24,8 +24,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path("",include("core.urls")),
     path("users/",include("users.urls")),
-    path("courier/", include("couriers.urls")),
-    path("driver/", include("drivers.urls")),  
+    path("drivers/", include("drivers.urls")),
+    path("couriers/", include("couriers.urls")),
 ]
 
 if settings.DEBUG:

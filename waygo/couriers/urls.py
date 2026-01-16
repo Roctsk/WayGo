@@ -1,7 +1,7 @@
 from django.urls import path
-from .views import courier_dashboard
-
+from . import views
 
 urlpatterns = [
-    path("dashboard/", courier_dashboard, name="courier_dashboard")
+    path("register/",views.courier_register , name="courier-register"),
+    path("dashboard/",views.courier_register , name="courier-dashboard"),
 ]
