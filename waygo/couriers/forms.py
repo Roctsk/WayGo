@@ -7,6 +7,7 @@ class CourierRegisterForm(forms.ModelForm):
     email = forms.EmailField(label="Email")
     password = forms.CharField(widget=forms.PasswordInput, label="Пароль")
     phone = forms.CharField(label="Телефон")
+    username = forms.CharField(label="Ваша назва")
 
     class Meta:
         model = Courier

@@ -11,30 +11,29 @@ def courier_register(request):
             email = form.cleaned_data["email"]
             password = form.cleaned_data["password"]
             phone = form.cleaned_data["phone"]
+            username = form.cleaned_data["username"]
 
-            # Перевірка унікальності телефону
+            # унікальності телефону
             if User.objects.filter(phone=phone).exists():
                 form.add_error("phone", "Користувач з таким телефоном вже існує")
                 return render(request, "couriers/register.html", {"form": form})
 
-            # Перевірка унікальності email
+            # унікальності email
             if User.objects.filter(email=email).exists():
                 form.add_error("email", "Користувач з таким email вже існує")
                 return render(request, "couriers/register.html", {"form": form})
 
-            # Створюємо користувача
             user = User.objects.create_user(
                 email=email,
                 password=password,
-                phone=phone
+                phone=phone,
+                username =username
             )
 
-            # Створюємо кур’єра
             courier = form.save(commit=False)
             courier.user = user
             courier.save()
 
-            # Логін користувача
             login(request, user)
 
             return redirect("courier-dashboard")

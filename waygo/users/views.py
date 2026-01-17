@@ -17,7 +17,7 @@ def register(request):
             elif user.role == "courier":
                 return redirect("courier-register")
 
-            return redirect("home")
+            return redirect("client-dashboard")
 
     else:
         form = RegisterForm()
