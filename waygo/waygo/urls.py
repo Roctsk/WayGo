@@ -26,6 +26,7 @@ urlpatterns = [
     path("users/",include("users.urls")),
     path("drivers/", include("drivers.urls")),
     path("couriers/", include("couriers.urls")),
+    path("clients/", include("clients.urls")),
 ]
 
 if settings.DEBUG:

@@ -1,8 +1,10 @@
-from django.shortcuts import render , redirect
-# views.py
+from django.shortcuts import render , redirect , get_object_or_404
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.contrib.auth import get_user_model, login
 from .forms import DriverRegisterForm
+from .models import Driver
+from django.http import JsonResponse
 
 User = get_user_model()
 
@@ -47,6 +49,15 @@ def driver_register(request):
 
 
 def driver_dashboard(request):
-    return render(request,"drivers/dashboard.html")
+    driver = get_object_or_404(Driver, user=request.user)
+    return render(request,"drivers/dashboard.html" , {"driver":driver})
 
 
+@login_required
+def toggle_online(request):
+    if request.method == "POST":
+        driver = get_object_or_404(Driver, user=request.user)
+        driver.is_online = not driver.is_online
+        driver.save()
+        return JsonResponse({"is_online": driver.is_online})
+    return JsonResponse({"error": "POST request required"}, status=400)

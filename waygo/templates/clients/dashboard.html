@@ -1,11 +1,39 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Clients</title>
-</head>
-<body>
-    
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block title %}
+Клієнт
+{% endblock %}
+
+{% block content %}
+
+{% load static %}
+<div class="container mt-5">
+    <h2 class="fw-bold">👋 Вітаю, {{ request.user.username }}</h2>
+
+    <div class="card mt-4 p-4">
+        <h5>🚕 Замовити поїздку</h5>
+        <p>Швидко знайди водія поруч</p>
+        <a href="#" class="btn btn-dark">Замовити</a>
+    </div>
+
+    <a href="{% url 'logout' %}" class="btn btn-outline-danger mt-4">Вийти</a>
+</div>
+<div class="container mt-5">
+    <h2 class="fw-bold">🚗 Онлайн водії</h2>
+    {% if online_drivers %}
+        <div class="row">
+            {% for driver in online_drivers %}
+                <div class="col-md-4 mt-3">
+                    <div class="card p-3 bg-light text-dark">
+                        <p><b>🟢 Водій</b>{{ driver.user.username }}</p>
+                    </div>
+                </div>   
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>Наразі немає водіїм онлайн</p>
+    {% endif %}
+
+</div>
+
+{% endblock %}

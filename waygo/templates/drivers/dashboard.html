@@ -1,11 +1,65 @@
 {% extends "base.html" %}
 
 {% block title %}
-Реєстрація кур'єра
+Водія
 {% endblock %}
 
 {% block content %}
 
 {% load static %}
-<h1>54654654645654656</h1>
+
+<div class="container mt-5">
+    <h2 class="fw-bold">🚕 Кабінет водія</h2>
+
+    <div class="card bg-light text-dark mt-4 p-4">
+        <p><b>Авто:</b> {{ driver.car_model }}</p>
+        <p><b>Номер:</b> {{ driver.car_number }}</p>
+        <p><b>Статус:</b>
+            <span id="driver-status" class="{% if driver.is_online %}text-success{% else %}text-danger{% endif %}">
+                {% if driver.is_online %}Онлайн{% else %}Офлайн{% endif %}
+            </span>
+        </p>
+
+        <button id="toggle-online-btn" class="btn {% if driver.is_online %}btn-danger{% else %}btn-success{% endif %}"> 
+            {% if driver.is_online %}🔴 Вийти офлайн{% else %}🟢 Вийти онлайн{% endif %}
+        </button>
+    </div>
+
+    <a href="{% url 'logout' %}" class="btn btn-outline-light mt-4">Вийти</a>
+</div>
+<script>
+    const btn = document.getElementById('toggle-online-btn');
+    const statusText = document.getElementById('driver-status');
+
+    btn.addEventListener('click', () => {
+        fetch("{% url 'toggle-online' %}", {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": "{{ csrf_token }}",
+                "Accept": "application/json"
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.is_online){
+                statusText.textContent = "Онлайн";
+                statusText.classList.remove("text-danger");
+                statusText.classList.add("text-success");
+
+                btn.textContent = "🔴 Вийти офлайн";
+                btn.classList.remove("btn-success");
+                btn.classList.add("btn-danger");
+            } else {
+                statusText.textContent = "Офлайн";
+                statusText.classList.remove("text-success");
+                statusText.classList.add("text-danger");
+
+                btn.textContent = "🟢 Вийти онлайн";
+                btn.classList.remove("btn-danger");
+                btn.classList.add("btn-success");
+            }
+        })
+        .catch(error => console.error("Помилка:", error));
+    });
+</script>
 {% endblock %}
