@@ -7,7 +7,9 @@ class DriverRegisterForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput, label="Пароль")
     phone = forms.CharField(label="Телефон")
     username = forms.CharField(label="Ваша назва")
+    city = forms.CharField(max_length=100, required=True, label="Місто")
+    
 
     class Meta:
         model = Driver
-        fields = ["car_model", "car_number"]
+        fields = ["car_model", "car_number",'city']

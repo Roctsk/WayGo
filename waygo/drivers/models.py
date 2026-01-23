@@ -9,9 +9,10 @@ class Driver(models.Model):
 
     car_model = models.CharField(max_length=30,verbose_name="Модель авто")
     car_number = models.CharField(max_length=20,verbose_name="Номер машини")
-
+    rating = models.FloatField(default=5.0)
+    city = models.CharField(max_length=50)
     is_online  = models.BooleanField(default=False,verbose_name="Онлайн")
     create_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Курєр {self.user.username}"
+        return f"Водій {self.user.username}"

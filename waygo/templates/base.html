@@ -11,20 +11,68 @@
 </head>
 <body>
     
-    <nav class="navbar navbar-expend-lg navbar-black bg-black shadow-sm ">
-        <div class="conteiner">
-            <a href="#" class="navbar-brand fw-bold" style="color: antiquewhite;">
-                <img src="{% static 'img/logo.png' %}" height="40" class="me-2">
-                WayGo
-            </a>
-                {% if user.is_authenticated %}
-                    {{user.username}}
-                    <a href="{% url 'logout' %}"> Вийти</a>
-                {% else %}
-                    <a href="{% url 'login' %}"> Увійти</a>
-                    <a href="{% url 'register' %}"> Зареєструватсия</a>
-                {% endif %}
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-black shadow-sm">
+      <div class="container">
+    
+        <a href="{% url 'home' %}" class="navbar-brand fw-bold d-flex align-items-center">
+          <img src="{% static 'img/logo.png' %}" height="40" class="me-2">
+          WayGo
+        </a>
+    
+        <button class="navbar-toggler" type="button"
+                data-bs-toggle="collapse" data-bs-target="#mainNavbar">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+    
+        <div class="collapse navbar-collapse" id="mainNavbar">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a href="#how" class="nav-link">Як працює</a>
+            </li>
+            <li class="nav-item">
+              <a href="#drivers" class="nav-link">Для водіїв</a>
+            </li>
+            <li class="nav-item">
+              <a href="#couriers" class="nav-link">Для курʼєрів</a>
+            </li>
+          </ul>
+    
+          <div class="d-flex align-items-center gap-2">
+            {% if user.is_authenticated %}
+              <div class="dropdown">
+                <button class="btn btn-outline-light dropdown-toggle"
+                        data-bs-toggle="dropdown">
+                  {{ user.username|default:"Користувач" }}
+                </button>
+    
+                <ul class="dropdown-menu dropdown-menu-end">
+                  <li>
+                    {% if user.role == "driver" %}
+                      <a class="dropdown-item" href="{% url 'drivers:dashboard' %}">Сторінка водія</a>
+                    {% elif user.role == "courier" %}
+                      <a class="dropdown-item" href="{% url 'couriers:dashboard' %}">Сторінка курʼєра</a>
+                    {% else %}
+                      <a class="dropdown-item" href="#">Мій профіль</a>
+                    {% endif %}
+                  </li>
+    
+                  <li><hr class="dropdown-divider"></li>
+    
+                  <li>
+                    <a class="dropdown-item text-danger" href="{% url 'logout' %}">
+                      Вийти
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            {% else %}
+              <a href="{% url 'login' %}" class="btn btn-outline-light">Увійти</a>
+              <a href="{% url 'register' %}" class="btn btn-warning">Зареєструватися</a>
+            {% endif %}
+          </div>
         </div>
+      </div>
     </nav>
     
 

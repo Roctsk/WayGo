@@ -1,39 +1,93 @@
 {% extends "base.html" %}
 
-{% block title %}
-Клієнт
-{% endblock %}
+{% block title %}Клієнт{% endblock %}
 
 {% block content %}
 
 {% load static %}
-<div class="container mt-5">
-    <h2 class="fw-bold">👋 Вітаю, {{ request.user.username }}</h2>
+<div class="container-fluid">
+    <div class="row vh-100">
 
-    <div class="card mt-4 p-4">
-        <h5>🚕 Замовити поїздку</h5>
-        <p>Швидко знайди водія поруч</p>
-        <a href="#" class="btn btn-dark">Замовити</a>
-    </div>
+        <!-- Бокова панель з водіями онлайн -->
+        <div class="col-12 col-md-3 col-lg-2 bg-dark text-light p-3 border-end">
+            <h6 class="text-uppercase text-secondary mb-3">
+                🟢 Водії онлайн
+            </h6>
 
-    <a href="{% url 'logout' %}" class="btn btn-outline-danger mt-4">Вийти</a>
-</div>
-<div class="container mt-5">
-    <h2 class="fw-bold">🚗 Онлайн водії</h2>
-    {% if online_drivers %}
-        <div class="row">
             {% for driver in online_drivers %}
-                <div class="col-md-4 mt-3">
-                    <div class="card p-3 bg-light text-dark">
-                        <p><b>🟢 Водій</b>{{ driver.user.username }}</p>
-                    </div>
-                </div>   
+            <div class="d-flex align-items-center gap-2 p-2 rounded driver-item mb-1">
+                <div class="rounded-circle bg-warning text-dark
+                            d-flex align-items-center justify-content-center fw-bold"
+                     style="width:38px;height:38px;">
+                    {{ driver.user.username|slice:":1"|upper }}
+                </div>
+                <div class="flex-grow-1">
+                    <div class="fw-semibold small">{{ driver.user.username }}</div>
+                    <div class="text-secondary small">⭐ {{ driver.rating }}</div>
+                </div>
+                <span class="badge bg-success">online</span>
+            </div>
+            {% empty %}
+                <p class="text-secondary small">Немає водіїв онлайн</p>
             {% endfor %}
         </div>
-    {% else %}
-        <p>Наразі немає водіїм онлайн</p>
-    {% endif %}
 
+        <div class="col bg-light p-4">
+            <h3 class="fw-bold">🚕 Замовлення таксі</h3>
+            <p class="text-muted">Оберіть водія або створіть швидке замовлення</p>
+
+            <div class="card shadow-sm mt-4">
+                <div class="card-body">
+                    <h5 class="fw-bold mb-3">🚕 Швидке замовлення</h5>
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <div class="mb-3">
+                            <label>Звідки</label>
+                            <input id="pickup" name="pickup_address" type="text" class="form-control" placeholder="Введіть адресу" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label>Куди</label>
+                            <input id="destination" name="destination_address" type="text" class="form-control" placeholder="Введіть адресу" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Коментар (необов'язково)</label>
+                            <textarea name="comment" class="form-control" rows="2" placeholder="Наприклад, біля АТБ"></textarea>
+                        </div>
+
+                        <button class="btn btn-dark w-100">Знайти водія</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div>
 </div>
+
+
+<script src="https://maps.googleapis.com/maps/api/js?key={{ GOOGLE_API_KEY }}&libraries=places&language=uk"></script>
+
+<script>
+function initAutocomplete() {
+
+    var pickInput = document.getElementById('pickup');
+    var pickupAutocomplete = new google.maps.places.Autocomplete(pickInput, {
+        types: ['geocode'],
+        componentRestrictions: {country: 'ua'}
+    });
+
+
+    var destInput = document.getElementById('destination');
+    var destAutocomplete = new google.maps.places.Autocomplete(destInput, {
+        types: ['geocode'],
+        componentRestrictions: {country: 'ua'}
+    });
+}
+
+
+google.maps.event.addDomListener(window, "load", initAutocomplete);
+</script>
 
 {% endblock %}

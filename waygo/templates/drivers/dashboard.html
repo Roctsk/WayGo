@@ -26,6 +26,26 @@
     </div>
 
     <a href="{% url 'logout' %}" class="btn btn-outline-light mt-4">Вийти</a>
+    <h4>📥 Доступні замовлення</h4>
+    {% for order in orders  %}
+    <div class="card mb-2">
+        <div class="card-body">
+        <p><b>Звідки:</b> {{order.pickup_address}}</p>
+        <p><b>Куди:</b> {{order.destination_address}}</p>
+        <p><b>Коментар:</b> {{order.comment}}</p>
+        <p><b>Ціна:</b> {{order.price}}</p>
+        <form method="post" action="{% url 'accept_order' order.id %}">
+            {% csrf_token %}
+            <button class="btn btn-success btn-sm">
+                Прийняти
+            </button>
+        </form>
+        </div>
+    </div>
+
+    {% empty %}
+    <div class="text-muted"> Немає замoвлень</div>
+    {% endfor %}
 </div>
 <script>
     const btn = document.getElementById('toggle-online-btn');

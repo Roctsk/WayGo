@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'drivers',
     'couriers',
     'clients',
+    'orders',
 ]
 
 MIDDLEWARE = [
@@ -136,3 +137,4 @@ LOGIN_URL = "login"
 LOGOUT_REDIRECT_URL = "home"
 
 
+GOOGLE_MAPS_API_KEY = "AQ.Ab8RN6K_PG_VLU5gVMMT_8PWZE7cFoATpeiUwyGRJtl7iG5AmQ"
