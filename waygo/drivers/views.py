@@ -57,12 +57,12 @@ def driver_register(request):
 def driver_dashboard(request):
     if not hasattr(request.user, "driver"):
         return HttpResponseForbidden("Ви не є водієм")
-
+    
     driver = request.user.driver
 
     orders = TaxiOrder.objects.filter(
         status="searching",
-        pickup_address__icontains=driver.city
+        city__iexact=driver.city
     )
 
     return render(request,"drivers/dashboard.html",{"orders":orders,"driver":driver})

@@ -18,7 +18,7 @@ class TaxiOrder(models.Model):
     price = models.DecimalField(max_digits=8,decimal_places=2,blank=True,null=True)
     pickup_address = models.CharField(max_length=255)
     destination_address = models.CharField(max_length=255)
-
+    city = models.CharField(max_length=100)
     status = models.CharField(max_length=20,choices=STATUS_CHOICES,default="searching")
 
     create_at = models.DateTimeField(auto_now_add=True)
