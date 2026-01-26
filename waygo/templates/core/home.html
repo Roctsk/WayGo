@@ -4,86 +4,330 @@
 {% block content %}
 
 {% load static %}
+<style>
+
+* {
+    transition: all 0.3s ease;
+}
+
+body{
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background: linear-gradient(
+        180deg,
+        #020617 0%,
+        #0f172a 50%,
+        #020617 100%
+    );
+    color: #e5e7eb;
+    color: #e5e7eb;
+}
+.hero{
+   min-height: 40vh;
+   display: flex;
+   align-items: center;
+   position: relative;
+   overflow: hidden;
+}
+
+.hero::after{
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at top right, rgba(251,191,36,0.15), transparent 40%),
+        radial-gradient(circle at bottom left, rgba(14,165,233,0.12), transparent 45%);
+    pointer-events: none;
+}
+
+.btn-main{
+    background-color: #fbbf24;
+    color: #000;
+    border-radius: 30px;
+    padding: 12px 30px;
+    font-weight: 600;
+}
+
+.btn-main:hover{
+    background-color: #f59e0b;
+    color: #000;
+}
+
+.btn-outline-main{
+    border: 2px solid #fbbf24;
+    color: #fbbf24;
+    border-radius: 30px;
+    padding: 12px 30px;
+    font-weight: 600;
+}
+.btn-outline-main:hover{
+    background-color: #fbbf24;
+    color: #000;
+}
+
+.card-custom {
+    background: rgba(2,6,23,0.9);
+    border-radius: 18px;
+    padding: 35px 25px;
+    height: 100%;
+    box-shadow: 0 20px 40px rgba(0,0,0,.45);
+    backdrop-filter: blur(6px);
+}
+
+.step{
+    background: rgba(2,6,23,0.9);
+    border-radius: 18px;
+    padding: 20px 5px;
+    box-shadow: 0 20px 40px rgba(0,0,0,.45);
+    backdrop-filter: blur(6px);
+}
+
+
+.cta {
+    background: linear-gradient(135deg, #020617, #111827);
+    border-top: 1px solid rgba(255,255,255,.05);
+}
+
+h1, h2, h3 {
+    letter-spacing: -0.5px;
+}
+
+.btn {
+    box-shadow: 0 10px 25px rgba(0,0,0,.35);
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+}
+
+section {
+    position: relative;
+    padding-top: 100px;
+    padding-bottom: 100px;
+}
+
+section::before {
+    content: "";
+    position: absolute;
+    top: -60px;
+    left: 0;
+    right: 0;
+    height: 120px;
+    background: linear-gradient(
+        to bottom,
+        transparent,
+        rgba(15,30,42,0.8),
+        transparent
+    );
+    pointer-events: none;
+}
+
+
+.section-divider {
+    height: 1px;
+    background: linear-gradient(
+        to right,
+        transparent,
+        rgba(202, 196, 196, 0.15),
+        transparent
+    );
+    margin: 0 auto;
+    width: 80%;
+}
+
+.cta .btn {
+    min-width: 220px;
+}
+
+.cta-box {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 60px 40px;
+    background: rgba(2,6,23,0.85);
+    border-radius: 28px;
+    box-shadow: 0 30px 70px rgba(0,0,0,.6);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,.08);
+}
+
+.footer {
+    background: linear-gradient(180deg, #020617, #01030f);
+    border-top: 1px solid rgba(255,255,255,0.06);
+    padding-top: 80px;
+    padding-bottom: 40px;
+}
+
+.footer h5 {
+    color: #fbbf24;
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+.footer p,
+.footer a {
+    color: #9ca3af;
+    text-decoration: none;
+    font-size: 0.95rem;
+}
+
+.footer a:hover {
+    color: #fbbf24;
+}
+
+.footer-logo {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #fff;
+}
+
+.footer-bottom {
+    margin-top: 50px;
+    padding-top: 25px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    font-size: 0.85rem;
+    color: #6b7280;
+}
+
+
+</style>
 <body>
 
-<section class="py-5 bg-dark text-white text-center">
-    <div class="conteiner">
+<section class="py-5 hero text-center">
+    <div class="container">
         <h1 class="display-5 fw-bold">WayGo — більше ніж таксі</h1>
-        <p class="lead mt-2" >
+        <p class="lead mt-2 text-secondary">
             Платформа, де ти можеш бути водієм, кур’єром або клієнтом
         </p>
-        <div class="mt-4">
-            <a  href="{% url 'driver-register' %}?role=driver" class="btn btn-warning btn-lg me-2">Стати водієм</a>
-            <a  href="{% url 'register' %}?role=client" class="btn btn-outline-light btn-lg">Замовити поїздку</a>
+        <div class="mt-4 d-flex justify-content-center gap-3 flex-wrap " >
+            <a  href="{% url 'driver-register' %}?role=driver" class="btn btn-main btn-lg ">Стати водієм</a>
+            <a  href="{% url 'register' %}?role=client" class="btn btn-outline-main btn-lg">Замовити поїздку</a>
         </div>
     </div>
 </section>
-
-<section class="py-5">
-    <div class="conteiner">
+<div class="section-divider"></div>
+<section class="py-5 section-dark" >
+    <div class="container">
         <h2 class="text-center fw-bold mb-5">Ким ти можеш бути в WayGo?</h2>
         <div class="row g-4">
-            <div class="col-md-4 text-center">
-                <h4>🚕 Таксист</h4>
-                <p>Приймай замовлення, заробляй у зручний для тебе час.</p>
+            <div class="col-md-4">
+                <div class="card-custom text-center">
+                    <h3>🚕 Таксист</h3>
+                    <p class="text-secondary mt-2">
+                        Приймай замовлення та заробляй у зручний час
+                    </p>
+                </div>
             </div>
-            <div class="col-md-4 text-center">
-                <h4>🛵 Кур’єр</h4>
-                <p>Доставляй їжу, посилки та документи швидко і просто.</p>
+            <div class="col-md-4">
+                <div class="card-custom text-center">
+                    <h3>🛵 Курʼєр</h3>
+                    <p class="text-secondary mt-2">
+                        Доставка їжі та посилок без зайвих клопотів
+                    </p>
+                </div>
             </div>
-            <div class="col-md-4 text-center">
-                <h4>📱 Клієнт</h4>
-                <p>Замовляй поїздки або доставки в один клік.</p>
+            <div class="col-md-4">
+                <div class="card-custom text-center">
+                    <h3>👤 Клієнт</h3>
+                    <p class="text-secondary mt-2">
+                        Швидкий виклик авто або курʼєра
+                    </p>
+                </div>
             </div>
         </div>
     </div>
 </section>
-
-<section class="py-5 bg-light">
+<div class="section-divider"></div>
+<section class="py-5">
     <div class="conteiner">
         <h2 class="text-center fw-bold mb-4">Як це працює?</h2>
         <div class="row text-center">
-            <div class=" col md-4">
-                <h5>1️⃣ Реєстрація</h5>
-                <p>Створи акаунт за кілька хвилин.</p>
+            <div class="col-md-4">
+                <div class="step">
+                    <span>1️⃣</span>
+                    <h5>Реєстрація</h5>
+                    <p>Створи акаунт за кілька хвилин.</p>
+                </div>
             </div>
-            <div class=" col md-4">
-                <h5>2️⃣ Обери роль</h5>
-                <p>Таксист, кур’єр або клієнт.</p>
+            <div class="col-md-4">
+                <div class="step">
+                    <span>2️⃣</span>
+                    <h5>Обери роль</h5>
+                    <p>Таксист, кур’єр або клієнт.</p>
+                </div>
             </div>
-            <div class=" col md-4">
-                <h5>3️⃣ Починай</h5>
-                <p>Заробляй або замовляй послуги.</p>
+           <div class="col-md-4">
+                <div class="step">
+                    <span>3️⃣</span>
+                    <h5>Починай</h5>
+                    <p>Заробляй або замовляй послуги.</p>
+                </div>
             </div>
         </div>
     </div>
 </section>
-
-<section class="py-5 text-center bg-light">
+<div class="section-divider"></div>
+<section class="py-5 text-center cta">
     <div class="container">
-        <h2 class="fw-bold">Готовий почати з WayGo?</h2>
-        <p class="lead mb-4">Обери свою роль</p>
+        <div class="cta-box">
+            <h2 class="fw-bold mb-3">Готовий почати з WayGo?</h2>
+            <p class="lead mb-5 text-secondary">
+                Обери свою роль та почни вже сьогодні
+            </p>
 
-        <div class="d-flex justify-content-center gap-3 flex-wrap">
-            <a href="{% url 'register' %}?role=client"
-               class="btn btn-dark btn-lg">
-                👤 Я клієнт
-            </a>
+            <div class="d-flex justify-content-center gap-4 flex-wrap">
+                <a href="{% url 'register' %}?role=client"
+                   class="btn btn-outline-main btn-lg">
+                    👤 Я клієнт
+                </a>
 
-            <a href="{% url 'driver-register' %}?role=driver"
-               class="btn btn-warning btn-lg">
-                🚕 Стати водієм
-            </a>
+                <a href="{% url 'driver-register' %}?role=driver"
+                   class="btn btn-main btn-lg">
+                    🚕 Стати водієм
+                </a>
 
-            <a href="{% url 'courier-register' %}?role=courier"
-               class="btn btn-success btn-lg">
-                🛵 Стати курʼєром
-            </a>
+                <a href="{% url 'courier-register' %}?role=courier"
+                   class="btn btn-outline-main btn-lg">
+                    🛵 Стати курʼєром
+                </a>
+            </div>
         </div>
     </div>
 </section>
+<footer class="footer">
+    <div class="container">
+        <div class="row gy-4">
 
-    
+            <div class="col-md-4">
+                <div class="footer-logo mb-3">WayGo</div>
+                <p>
+                    WayGo — платформа для поїздок та доставок.
+                    Водії, курʼєри та клієнти — в одному сервісі.
+                </p>
+            </div>
+
+            <div class="col-md-4">
+                <h5>Навігація</h5>
+                <ul class="list-unstyled">
+                    <li><a href="#">Головна</a></li>
+                    <li><a href="#">Стати водієм</a></li>
+                    <li><a href="#">Стати курʼєром</a></li>
+                    <li><a href="#">Замовити поїздку</a></li>
+                </ul>
+            </div>
+
+            <div class="col-md-4">
+                <h5>Контакти</h5>
+                <p>📍 Україна</p>
+                <p>📧 support@waygo.ua</p>
+                <p>📞 +380 XX XXX XX XX</p>
+            </div>
+
+        </div>
+
+        <div class="footer-bottom text-center">
+            © {{ now|date:"Y" }} WayGo. Усі права захищені.
+        </div>
+    </div>
+</footer>
     
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 

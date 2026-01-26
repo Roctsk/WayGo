@@ -1,0 +1,57 @@
+
+body{
+    margin-top: 72px;
+}
+
+.navbar {
+    background: rgba(2, 6, 23, 0.85) !important;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    backdrop-filter: blur(8px);
+}
+
+.navbar-brand {
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+
+.navbar-brand img {
+    border-radius: 8px;
+}
+
+.navbar .nav-link {
+    color: #9ca3af !important;
+    font-weight: 500;
+}
+
+.navbar .nav-link:hover {
+    color: #fbbf24 !important;
+}
+
+.navbar .btn-outline-light {
+    border-color: rgba(255,255,255,0.3);
+    color: #e5e7eb;
+}
+
+.navbar .btn-outline-light:hover {
+    background-color: #fbbf24;
+    border-color: #fbbf24;
+    color: #000;
+}
+
+.dropdown-menu {
+    background-color: #020617;
+    border: 1px solid rgba(255,255,255,0.08);
+}
+
+.dropdown-item {
+    color: #e5e7eb;
+}
+
+.dropdown-item:hover {
+    background-color: rgba(251,191,36,0.15);
+    color: #fbbf24;
+}
+
+.dropdown-divider {
+    border-color: rgba(255,255,255,0.1);
+}

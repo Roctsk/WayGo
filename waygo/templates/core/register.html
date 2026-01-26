@@ -7,11 +7,77 @@
 {% block content %}
 
 {% load static %}
+<style>
+.auth-page.dark {
+    min-height: calc(100vh - 80px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #e5e7eb;
+}
 
-<div class="container mt-5" style="max-width: 500px;">
+.auth-card.dark {
+    width: 100%;
+    max-width: 480px;
+    background: rgba(2,6,23,0.9);
+    color: #e5e7eb;
+    padding: 32px;
+    border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.45);
+    backdrop-filter: blur(6px);
+    animation: fadeUp 0.6s ease;
+}
 
-    <h2 class="mb-4 text-center">Реєстрація</h2>
-           <form method="post">
+.auth-card.dark input,
+.auth-card.dark select {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: #e5e7eb;
+    padding: 12px;
+    border-radius: 10px;
+    width: 100%;
+    transition: all 0.25s ease;
+}
+
+.auth-card.dark input:focus,
+.auth-card.dark select:focus {
+    border-color: #fbbf24;
+    box-shadow: 0 0 0 2px rgba(251,191,36,0.25);
+    outline: none;
+}
+
+.auth-card.dark label {
+    font-size: 14px;
+    color: #cbd5e1;
+    margin-bottom: 6px;
+}
+
+.btn-main {
+    background-color: #fbbf24;
+    color: #000;
+    border-radius: 12px;
+    padding: 12px;
+    font-weight: 600;
+    transition: all 0.25s ease;
+}
+
+.btn-main:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(251,191,36,0.25);
+}
+
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+</style>
+<div class="container auth-page dark">
+    <div class="auth-card dark">
+
+        <h2 class="mb-4 text-center fw-bold">Реєстрація</h2>
+
+        <form method="post">
             {% csrf_token %}
 
             {{ form.non_field_errors }}
@@ -20,15 +86,20 @@
                 <div class="mb-3">
                     {{ field.label_tag }}
                     {{ field }}
-                    {{ field.errors }}
+                    {% if field.errors %}
+                        <div class="text-danger small mt-1">{{ field.errors }}</div>
+                    {% endif %}
                 </div>
             {% endfor %}
 
-            <button class="btn btn-dark w-100">
+            <button class="btn btn-main w-100 mt-3">
                 Зареєструватися
             </button>
         </form>
+
+    </div>
 </div>
+
 
 
 {% endblock %}
