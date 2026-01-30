@@ -60,7 +60,15 @@ def driver_dashboard(request):
     
     driver = request.user.driver
 
-    orders = TaxiOrder.objects.filter(
+    active_order = TaxiOrder.objects.filter(
+        driver=driver,
+        status__in=["accepted", "on_the_way", "arrived"]
+    ).first()
+
+    if active_order:
+        return render(request,"drivers/active_order.html",{"order":active_order,"driver":driver})
+
+    orders  = TaxiOrder.objects.filter(
         status="searching",
         city__iexact=driver.city
     )
@@ -69,17 +77,25 @@ def driver_dashboard(request):
 
 
 
+
+
 @login_required
 def accept_order(request,order_id):
     driver = request.user.driver
+
+    if TaxiOrder.objects.filter(driver=driver,status__in=["accepted", "on_the_way", "arrived"]).exists():
+        return HttpResponseForbidden("У вас вже є активне замовлення")
+
     order = get_object_or_404(
-        TaxiOrder, id=order_id,status="searching",pickup_address__icontains=driver.city)
+        TaxiOrder, id=order_id,status="searching")
 
     order.driver = driver
     order.status = "accepted"
     order.save()
+
     messages.success(request, "Замовлення прийнято!")
     return redirect("driver-dashboard")
+
 
 
 @login_required
@@ -107,3 +123,39 @@ def calculate_price(pickup, destination):
     else:
         return None
     
+
+
+@login_required
+def order_on_the_way(request):
+    order = get_object_or_404(
+        TaxiOrder,
+        driver=request.user.driver,
+        status="accepted"
+    )
+    order.status = "on_the_way"
+    order.save()
+    return redirect("driver-active-order")
+
+
+@login_required
+def order_arrived(request):
+    order = get_object_or_404(
+        TaxiOrder,
+        driver=request.user.driver,
+        status="on_the_way"
+    )
+    order.status = "arrived"
+    order.save()
+    return redirect("driver-active-order")
+
+
+@login_required
+def order_complete(request):
+    order = get_object_or_404(
+        TaxiOrder,
+        driver=request.user.driver,
+        status="arrived"
+    )
+    order.status = "completed"
+    order.save()
+    return redirect("driver-dashboard")

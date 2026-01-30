@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Кабінет водія{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid p-0">
+    <div id="map" style="height: 80vh;"></div>
+
+    <div class="p-3 bg-white shadow fixed-bottom">
+        <p><b>Звідки:</b> {{ order.pickup_address }}</p>
+        <p><b>Куди:</b> {{ order.destination_address }}</p>
+
+        {% if order.status == "accepted" %}
+            <a href="{% url 'order_on_the_way' %}" class="btn btn-primary w-100">
+                Почати поїздку
+            </a>
+        {% elif order.status == "on_the_way" %}
+            <a href="{% url 'order_arrived' %}" class="btn btn-warning w-100">
+                Я прибув
+            </a>
+        {% elif order.status == "arrived" %}
+            <a href="{% url 'order_complete' %}" class="btn btn-success w-100">
+                Завершити поїздку
+            </a>
+        {% endif %}
+    </div>
+</div>
+
+<script src="https://maps.googleapis.com/maps/api/js?key={{ GOOGLE_MAPS_API_KEY }}"></script>
+
+<script>
+function initMap(){
+    const map = new google.maps.Map(document.getElementById("map"),{
+        zoom:14,
+        center: { lat: 50.4501, lng: 30.5234 }
+    })
+}
+initMap();
+</script>
+
+{% endblock %}

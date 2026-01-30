@@ -14,7 +14,10 @@ from orders.models import TaxiOrder
 @login_required
 def client_dashboard(request):
     online_drivers = Driver.objects.filter(is_online=True)
-    
+    active_order = TaxiOrder.objects.filter(
+        client=request.user,
+        status__in=["accepted", "in_progress"]
+    ).first()
     if request.method == "POST":
         order = TaxiOrder.objects.create(
             client=request.user,
@@ -24,7 +27,7 @@ def client_dashboard(request):
             city=request.POST["city"],
             status="searching"
         )
-        return redirect("client_dashboard")
+        return redirect("client-dashboard")
 
-    return render(request, "clients/dashboard.html" , {"online_drivers":online_drivers})
+    return render(request, "clients/dashboard.html" , {"online_drivers":online_drivers,"active_order":active_order})
 

@@ -6,10 +6,12 @@ from drivers.models import Driver
 class TaxiOrder(models.Model):
 
     STATUS_CHOICES = (
-        ("searching", "Searching driver"),
+        ("searching", "Пошук водія"),
         ("accepted", "Accepted"),
-        ("completed", "Completed"),
-        ("canceled", "Canceled"),
+        ("on_the_way", "В дорозі"),
+        ("arrived", "Прибув"),
+        ("completed", "Завершено"),
+        ("cancelled", "Скасовано"),
     )
 
     client = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE,related_name="taxi_orders")

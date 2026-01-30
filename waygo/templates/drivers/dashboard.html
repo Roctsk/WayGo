@@ -8,45 +8,120 @@
 
 {% load static %}
 
-<div class="container mt-5">
-    <h2 class="fw-bold">🚕 Кабінет водія</h2>
 
-    <div class="card bg-light text-dark mt-4 p-4">
-        <p><b>Авто:</b> {{ driver.car_model }}</p>
-        <p><b>Номер:</b> {{ driver.car_number }}</p>
-        <p><b>Статус:</b>
-            <span id="driver-status" class="{% if driver.is_online %}text-success{% else %}text-danger{% endif %}">
-                {% if driver.is_online %}Онлайн{% else %}Офлайн{% endif %}
-            </span>
-        </p>
+<style>
+    body{
+        background: linear-gradient(180deg, #020617, #0f172a);
+    }
 
-        <button id="toggle-online-btn" class="btn {% if driver.is_online %}btn-danger{% else %}btn-success{% endif %}"> 
-            {% if driver.is_online %}🔴 Вийти офлайн{% else %}🟢 Вийти онлайн{% endif %}
-        </button>
-    </div>
+    .driver-dashboard {
+        min-height: calc(100vh - 80px);
+        background: linear-gradient(180deg, #020617, #0f172a);
+        color: #e5e7eb;
+    }
+    
+    .dashboard-card {
+        background: rgba(2,6,23,0.85);
+        border-radius: 18px;
+        padding: 28px;
+        box-shadow: 0 25px 50px rgba(0,0,0,.5);
+        border: 1px solid rgba(255,255,255,.06);
+    }
+    
+    .status-badge {
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 600;
+    }
+    
+    .status-online {
+        background: rgba(34,197,94,.15);
+        color: #22c55e;
+    }
+    
+    .status-offline {
+        background: rgba(239,68,68,.15);
+        color: #ef4444;
+    }
+    
+    .order-card {
+        background: rgba(255,255,255,0.04);
+        border-radius: 14px;
+        padding: 18px;
+        border: 1px solid rgba(255,255,255,.08);
+        transition: all .25s ease;
+    }
+    
+    .order-card:hover {
+        transform: translateY(-3px);
+        background: rgba(255,255,255,0.07);
+    }
+    
+    .btn-main {
+        background: #fbbf24;
+        color: #000;
+        font-weight: 600;
+        border-radius: 12px;
+    }
+    
+    .btn-main:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(251,191,36,.35);
+    }
+    </style>
+    
 
-    <a href="{% url 'logout' %}" class="btn btn-outline-light mt-4">Вийти</a>
-    <h4>📥 Доступні замовлення</h4>
-    {% for order in orders  %}
-    <div class="card mb-2">
-        <div class="card-body">
-        <p><b>Звідки:</b> {{order.pickup_address}}</p>
-        <p><b>Куди:</b> {{order.destination_address}}</p>
-        <p><b>Коментар:</b> {{order.comment}}</p>
-        <p><b>Ціна:</b> {{order.price}}</p>
-        <form method="post" action="{% url 'accept_order' order.id %}">
-            {% csrf_token %}
-            <button class="btn btn-success btn-sm">
-                Прийняти
+    <div class="container driver-dashboard pt-5">
+
+        <h2 class="fw-bold mb-4">🚕 Кабінет водія</h2>
+    
+        <div class="dashboard-card mb-5">
+            <p><b>Авто:</b> {{ driver.car_model }}</p>
+            <p><b>Номер:</b> {{ driver.car_number }}</p>
+    
+            <p>
+                <b>Статус:</b>
+                <span id="driver-status"
+                      class="status-badge {% if driver.is_online %}status-online{% else %}status-offline{% endif %}">
+                    {% if driver.is_online %}Онлайн{% else %}Офлайн{% endif %}
+                </span>
+            </p>
+    
+            <button id="toggle-online-btn"
+                    class="btn {% if driver.is_online %}btn-danger{% else %}btn-main{% endif %} mt-3">
+                {% if driver.is_online %}🔴 Вийти офлайн{% else %}🟢 Вийти онлайн{% endif %}
             </button>
-        </form>
         </div>
+    
+        <h4 class="fw-bold mb-3">📥 Доступні замовлення</h4>
+    
+        {% for order in orders %}
+            <div class="order-card mb-3">
+                <p><b>Звідки:</b> {{ order.pickup_address }}</p>
+                <p><b>Куди:</b> {{ order.destination_address }}</p>
+    
+                {% if order.comment %}
+                    <p><b>Коментар:</b> {{ order.comment }}</p>
+                {% endif %}
+    
+                <p><b>Ціна:</b> <span class="text-warning">{{ order.price }}</span></p>
+    
+                <form method="post" action="{% url 'accept_order' order.id %}">
+                    {% csrf_token %}
+                    <button class="btn btn-main btn-sm">
+                        Прийняти замовлення
+                    </button>
+                </form>
+            </div>
+        {% empty %}
+            <div class="text-secondary">Немає доступних замовлень</div>
+        {% endfor %}
+    
+        <a href="{% url 'logout' %}" class="btn btn-outline-light mt-4">
+            Вийти
+        </a>
     </div>
-
-    {% empty %}
-    <div class="text-muted"> Немає замoвлень</div>
-    {% endfor %}
-</div>
 <script>
     const btn = document.getElementById('toggle-online-btn');
     const statusText = document.getElementById('driver-status');
