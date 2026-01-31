@@ -15,9 +15,8 @@ from orders.models import TaxiOrder
 def client_dashboard(request):
     online_drivers = Driver.objects.filter(is_online=True)
     active_order = TaxiOrder.objects.filter(
-        client=request.user,
-        status__in=["accepted", "in_progress"]
-    ).first()
+        client=request.user
+    ).order_by("-create_at").first()
     if request.method == "POST":
         order = TaxiOrder.objects.create(
             client=request.user,

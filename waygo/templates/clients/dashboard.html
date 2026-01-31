@@ -139,15 +139,16 @@
                     </form>
                 </div>
             </div>
+            <div>{{ active_order.status }}</div>
+            {% if active_order.status == "accepted" %}
+                <p>🚕 Водій прийняв замовлення</p>                
+            {% elif active_order.status == "on_the_way" %}
+                <p>🚗 Водій їде до вас</p>
+            {% elif active_order.status == "arrived" %}
+                <p>📍 Водій на місці</p>
+            {% endif %}
         </div>
         
-        {% if order.status == "accepted" %}
-        🚕 Водій прийняв замовлення
-        {% elif order.status == "on_the_way" %}
-        🚗 Водій їде до вас
-        {% elif order.status == "arrived" %}
-        📍 Водій на місці
-        {% endif %}
 
     </div>
 </div>

@@ -134,7 +134,7 @@ def order_on_the_way(request):
     )
     order.status = "on_the_way"
     order.save()
-    return redirect("driver-active-order")
+    return redirect("driver-dashboard")
 
 
 @login_required
@@ -146,7 +146,7 @@ def order_arrived(request):
     )
     order.status = "arrived"
     order.save()
-    return redirect("driver-active-order")
+    return redirect("driver-dashboard")
 
 
 @login_required
