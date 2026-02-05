@@ -75,6 +75,18 @@
         background: rgba(251,191,36,.15);
         cursor: pointer;
     }
+    .order-status span {
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-weight: bold;
+    display: inline-block;
+}
+
+.order-status .accepted { background: #ffeaa7; }
+.order-status .on_the_way { background: #74b9ff; color: white; }
+.order-status .arrived { background: #55efc4; }
+.order-status .completed { background: #00b894; color: white; }
+.order-status .cancelled { background: #d63031; color: white; }
     </style>
     
 
@@ -139,14 +151,21 @@
                     </form>
                 </div>
             </div>
-            <div>{{ active_order.status }}</div>
-            {% if active_order.status == "accepted" %}
-                <p>🚕 Водій прийняв замовлення</p>                
-            {% elif active_order.status == "on_the_way" %}
-                <p>🚗 Водій їде до вас</p>
-            {% elif active_order.status == "arrived" %}
-                <p>📍 Водій на місці</p>
-            {% endif %}
+            <div class="order-status">
+                {% if active_order.status == "accepted" %}
+                    <span class="accepted">🚕 Водій прийняв замовлення</span>
+                {% elif active_order.status == "on_the_way" %}
+                    <span class="on_the_way">🚗 Водій їде до вас</span>
+                {% elif active_order.status == "arrived" %}
+                    <span class="arrived">📍 Водій на місці</span>
+                {% elif active_order.status == "completed" %}
+                    <span class="completed">✅ Замовлення виконано</span>
+                {% elif active_order.status == "cancelled" %}
+                    <span class="cancelled">❌ Замовлення скасовано</span>
+                {% else %}
+                    <span>Статус невідомий</span>
+                {% endif %}
+            </div>
         </div>
         
 
