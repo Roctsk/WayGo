@@ -35,21 +35,53 @@
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
 
+
 <script>
+const pickupAddress = "{{ order.pickup_address|escapejs }}";
+const destinationAddress = "{{ order.destination_address|escapejs }}";
+
+
 const map = L.map('map').setView([49.8397, 24.0297], 13);
 
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© OpenStreetMap'
 }).addTo(map);
 
-L.Routing.control({
-    waypoints: [
-        L.latLng(49.8397, 24.0297), // центр Львова
-        L.latLng(49.8420, 24.0316)  // інша точка
-    ],
-    routeWhileDragging: true
-}).addTo(map);
-</script>p();
+
+async function geocode(address){
+    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`;
+    const response = await fetch(url);
+    const data = await response.json();
+    if (data.length === 0){
+        alert("Не вдалося знайти адресу" + address)
+        return null
+    }
+
+    return L.latLng(
+        parseFloat(data[0].lat),
+        parseFloat(data[0].lon)
+    );
+
+}
+
+async function buildRoute(){
+    const start = await geocode(pickupAddress)
+    const end = await geocode(destinationAddress)
+
+    if (!start || !end ) return;
+
+    L.Routing.control({
+        waypoints: [start,end],
+        routeWhileDragging: true,
+        show: false,
+        addWaypoints: false
+    }).addTo(map);
+
+    map.fitBounds(L.latLngBounds([start,end]))
+
+}
+
+buildRoute();
 </script>
 
 {% endblock %}
