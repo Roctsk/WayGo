@@ -57,7 +57,7 @@
                     {% elif user.role == "courier" %}
                       <a class="dropdown-item" href="{% url 'couriers:dashboard' %}">Сторінка курʼєра</a>
                     {% else %}
-                      <a class="dropdown-item" href="#">Мій профіль</a>
+                      <a class="dropdown-item" href="{% url 'driver_profile' %}">Мій профіль</a>
                     {% endif %}
                   </li>
     

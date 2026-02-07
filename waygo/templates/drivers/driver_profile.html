@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Профіль водія{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card p-3">
+                <div class="text-center">
+                    {% if driver.photo %}
+                        <img src="{{ driver.photo.url }}" class="rounded-circle" width="120" height="120">
+                    {% else %}
+                        <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center"
+                             style="width:120px;height:120px;font-size:48px;">
+                             {{ driver.user.username|slice:":1"|upper }}
+                        </div>
+                    {% endif %}
+                </div>
+                <h4 class="text-center mt-2">{{ driver.user.username }}</h4>
+                <p class="text-center">⭐ {{ driver.rating }}</p>
+                <p class="text-center">Виконано поїздок: {{ completed_orders }}</p>
+                <p class="text-center">
+                    Статус: 
+                    {% if driver.is_online %}
+                        <span class="text-success">🟢 Онлайн</span>
+                    {% else %}
+                        <span class="text-secondary">🔴 Офлайн</span>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            {% if active_order %}
+                <div class="card p-3 mb-3">
+                    <h5>Активне замовлення</h5>
+                    <p><b>Звідки:</b> {{ active_order.pickup_address }}</p>
+                    <p><b>Куди:</b> {{ active_order.destination_address }}</p>
+                    <p><b>Статус:</b> {{ active_order.status }}</p>
+                    <a href="{% url 'order_on_the_way' %}" class="btn btn-primary">Почати поїздку</a>
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    Немає активних замовлень
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

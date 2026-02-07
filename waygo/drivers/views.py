@@ -3,7 +3,8 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.contrib.auth import get_user_model, login
 from .forms import DriverRegisterForm
-from .models import Driver
+from .models import Driver 
+from orders.models import TaxiOrder
 from django.http import JsonResponse
 from orders.models import  TaxiOrder
 from django.http import HttpResponseForbidden
@@ -159,3 +160,16 @@ def order_complete(request):
     order.status = "completed"
     order.save()
     return redirect("driver-dashboard")
+
+
+def driver_profile(request):
+    driver = request.user.driver
+    comleted_orders = TaxiOrder.objects.filter(driver=driver,status="completed").count()
+    active_orders = TaxiOrder.objects.filter(driver=driver, status__in = ["accepted","on_the_way"]).first()
+
+    context = {
+        "driver":driver,
+        "comleted_orders":comleted_orders,
+        "active_orders":active_orders,
+    }
+    return render(request,"drivers/driver_profile.html",context)

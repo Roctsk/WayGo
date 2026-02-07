@@ -139,6 +139,11 @@
                             <input id="destination" name="destination_address" class="form-control" autocomplete="off">
                             <div id="dest-results" class="list-group"></div>
                         </div>
+                        
+                        <input type="hidden" name="pickup_lat" id="pickup_lat">
+                        <input type="hidden" name="pickup_lon" id="pickup_lon">
+                        <input type="hidden" name="dest_lat" id="dest_lat">
+                        <input type="hidden" name="dest_lon" id="dest_lon">
 
                         <input type="hidden" name="city" id="city">
 
@@ -174,46 +179,51 @@
 
 
 <script>
-
-function searchAddress(query, resultBox, input) {
-    if (query.length < 3) {
-        resultBox.innerHTML = ""
-        return
+    const pickup = document.getElementById("pickup");
+    const destination = document.getElementById("destination");
+    
+    const pickup_results = document.getElementById("pickup-results");
+    const dest_results = document.getElementById("dest-results");
+    
+    const pickup_lat = document.getElementById("pickup_lat");
+    const pickup_lon = document.getElementById("pickup_lon");
+    const dest_lat = document.getElementById("dest_lat");
+    const dest_lon = document.getElementById("dest_lon");
+    
+    function searchAddress(query, box, input) {
+        if (query.length < 3) return box.innerHTML = "";
+    
+        fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=5&accept-language=uk&countrycodes=ua&q=${query}`)
+            .then(r => r.json())
+            .then(data => {
+                box.innerHTML = "";
+                data.forEach(p => {
+                    const a = document.createElement("a");
+                    a.className = "list-group-item list-group-item-action";
+                    a.innerText = p.display_name;
+                    a.onclick = () => {
+                        input.value = p.display_name;
+    
+                        if (input.id === "pickup") {
+                            pickup_lat.value = p.lat;
+                            pickup_lon.value = p.lon;
+                        } else {
+                            dest_lat.value = p.lat;
+                            dest_lon.value = p.lon;
+                        }
+    
+                        box.innerHTML = "";
+                    };
+                    box.appendChild(a);
+                });
+            });
     }
-
-    fetch(`https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&q=${query}`)
-        .then(res => res.json())
-        .then(data => {
-            resultBox.innerHTML = ""
-            data.slice(0,5).forEach(place => {
-                const item = document.createElement("a")
-                item.className = "list-group-item list-group-item-action"
-                item.innerText = place.display_name
-
-                item.onclick = () => {
-                    input.value = place.display_name
-                    document.getElementById("city").value =
-                        place.address?.city ||
-                        place.address?.town ||
-                        place.address?.village || ""
-                    resultBox.innerHTML = ""
-                }
-
-                resultBox.appendChild(item)
-            })
-        })
-}
-
-const pickup = document.getElementById("pickup")
-const dest = document.getElementById("destination")
-
-pickup.oninput = () =>
-    searchAddress(pickup.value, document.getElementById("pickup-results"), pickup)
-
-dest.oninput = () =>
-    searchAddress(dest.value, document.getElementById("dest-results"), dest)
+    
+    pickup.oninput = () => searchAddress(pickup.value, pickup_results, pickup);
+    destination.oninput = () => searchAddress(destination.value, dest_results, destination);
 </script>
-
+    
+    
 
 
 

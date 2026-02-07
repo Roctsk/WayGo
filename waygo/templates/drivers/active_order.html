@@ -29,59 +29,57 @@
 </div>
 
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-<link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css">
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
 
 
+<script type="application/json" id="order-coords">
+    {
+        "pickup_lat": {{ order.pickup_lat|default:"null" }},
+        "pickup_lon": {{ order.pickup_lon|default:"null" }},
+        "dest_lat": {{ order.dest_lat|default:"null" }},
+        "dest_lon": {{ order.dest_lon|default:"null" }}
+    }
+</script>
+
 <script>
-const pickupAddress = "{{ order.pickup_address|escapejs }}";
-const destinationAddress = "{{ order.destination_address|escapejs }}";
+const coordsEl = document.getElementById("order-coords");
+let coords = { pickup_lat: null, pickup_lon: null, dest_lat: null, dest_lon: null };
 
+try {
+    coords = JSON.parse(coordsEl.textContent);
+} catch(e) {
+    console.warn("Немає координат замовлення");
+}
 
-const map = L.map('map').setView([49.8397, 24.0297], 13);
+const map = L.map('map').setView([49.8397, 24.0297], 13); // базовий центр
 
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© OpenStreetMap'
 }).addTo(map);
 
+// Якщо координати є, будуємо маршрут
+if (coords.pickup_lat && coords.pickup_lon && coords.dest_lat && coords.dest_lon) {
+    const start = L.latLng(parseFloat(coords.pickup_lat), parseFloat(coords.pickup_lon));
+    const end = L.latLng(parseFloat(coords.dest_lat), parseFloat(coords.dest_lon));
 
-async function geocode(address){
-    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`;
-    const response = await fetch(url);
-    const data = await response.json();
-    if (data.length === 0){
-        alert("Не вдалося знайти адресу" + address)
-        return null
-    }
-
-    return L.latLng(
-        parseFloat(data[0].lat),
-        parseFloat(data[0].lon)
-    );
-
-}
-
-async function buildRoute(){
-    const start = await geocode(pickupAddress)
-    const end = await geocode(destinationAddress)
-
-    if (!start || !end ) return;
+    L.marker(start).addTo(map).bindPopup("Точка A");
+    L.marker(end).addTo(map).bindPopup("Точка B");
 
     L.Routing.control({
-        waypoints: [start,end],
-        routeWhileDragging: true,
-        show: false,
-        addWaypoints: false
+        waypoints: [start, end],
+        addWaypoints: false,
+        routeWhileDragging: false,
+        show: false
     }).addTo(map);
 
-    map.fitBounds(L.latLngBounds([start,end]))
-
+    map.fitBounds([start, end]);
 }
-
-buildRoute();
 </script>
-
+    
+    
+    
 {% endblock %}
