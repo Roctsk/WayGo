@@ -4,49 +4,182 @@
 {% block title %}Профіль водія{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-md-4">
-            <div class="card p-3">
-                <div class="text-center">
-                    {% if driver.photo %}
-                        <img src="{{ driver.photo.url }}" class="rounded-circle" width="120" height="120">
-                    {% else %}
-                        <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center"
-                             style="width:120px;height:120px;font-size:48px;">
-                             {{ driver.user.username|slice:":1"|upper }}
-                        </div>
-                    {% endif %}
-                </div>
-                <h4 class="text-center mt-2">{{ driver.user.username }}</h4>
-                <p class="text-center">⭐ {{ driver.rating }}</p>
-                <p class="text-center">Виконано поїздок: {{ completed_orders }}</p>
-                <p class="text-center">
-                    Статус: 
+
+<style>
+body {
+    min-height: 100vh;
+    background: linear-gradient(140deg, #0f172a,#020617);
+    color: #e5e7eb;
+}
+.driver-layout {
+    min-height: 100vh;
+    background: linear-gradient(180deg, #020617, #0f172a);
+    color: #e5e7eb;
+}
+
+.profile-card {
+    background: rgba(2,6,23,0.85);
+    border-radius: 20px;
+    padding: 30px;
+    border: 1px solid rgba(255,255,255,.06);
+    box-shadow: 0 30px 60px rgba(0,0,0,.5);
+    backdrop-filter: blur(12px);
+    align-items: center;
+}
+
+.profile-avatar {
+    width: 130px;
+    height: 130px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid rgba(251,191,36,.6);
+}
+
+.avatar-placeholder {
+    width: 130px;
+    height: 130px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    font-weight: bold;
+    border: 3px solid rgba(251,191,36,.6);
+}
+
+.status-online {
+    color: #22c55e;
+    font-weight: 600;
+}
+
+.status-offline {
+    color: #ef4444;
+    font-weight: 600;
+}
+
+.stat-box {
+    background: rgba(255,255,255,0.04);
+    padding: 18px;
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,.06);
+    transition: .25s;
+}
+
+.stat-box:hover {
+    transform: translateY(-4px);
+    background: rgba(255,255,255,0.08);
+}
+
+.order-card-modern {
+    background: rgba(2,6,23,0.9);
+    border-radius: 18px;
+    padding: 25px;
+    border: 1px solid rgba(255,255,255,.06);
+    box-shadow: 0 20px 40px rgba(0,0,0,.4);
+}
+
+.btn-main {
+    background: #fbbf24;
+    color: #000;
+    font-weight: 600;
+    border-radius: 12px;
+    padding: 10px 20px;
+}
+
+.btn-main:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(251,191,36,.3);
+}
+</style>
+<div class="container driver-layout py-5">
+    <div class="row g-4">
+        <div class="col-12">
+            <div class="stat-box">
+                <div class="small text-secondary">Баланс</div>
+                <div class="fs-5 fw-bold"> 0.00 ₴ </div>
+            </div>
+        </div>
+        <div class="col-md-4 d-flex justify-content-center">
+            <div class="profile-card text-center">
+
+                {% if driver.photo %}
+                    <img src="{{ driver.photo.url }}" class="profile-avatar">
+                {% else %}
+                    <div class="avatar-placeholder">
+                        {{ driver.user.username|slice:":1"|upper }}
+                    </div>
+                {% endif %}
+
+                <h3 class="mt-3">{{ driver.user.username }}</h3>
+                <p>⭐ {{ driver.rating }}</p>
+
+                <p>
                     {% if driver.is_online %}
-                        <span class="text-success">🟢 Онлайн</span>
+                        <span class="status-online">🟢 Онлайн</span>
                     {% else %}
-                        <span class="text-secondary">🔴 Офлайн</span>
+                        <span class="status-offline">🔴 Офлайн</span>
                     {% endif %}
                 </p>
+
+                <div class="row mt-4 g-3">
+                    <div class="col-6">
+                        <div class="stat-box">
+                            <div class="small text-secondary">Виконано</div>
+                            <div class="fs-5 fw-bold">{{ comleted_orders }}</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="stat-box">
+                            <div class="small text-secondary">Рейтинг</div>
+                            <div class="fs-5 fw-bold">⭐ {{ driver.rating }}</div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
 
         <div class="col-md-8">
-            {% if active_order %}
-                <div class="card p-3 mb-3">
-                    <h5>Активне замовлення</h5>
-                    <p><b>Звідки:</b> {{ active_order.pickup_address }}</p>
-                    <p><b>Куди:</b> {{ active_order.destination_address }}</p>
-                    <p><b>Статус:</b> {{ active_order.status }}</p>
-                    <a href="{% url 'order_on_the_way' %}" class="btn btn-primary">Почати поїздку</a>
+
+            {% if active_orders %}
+                <div class="order-card-modern">
+                    <h5 class="mb-3">🚕 Активне замовлення</h5>
+
+                    <p><b>Звідки:</b><br>{{ active_orders.pickup_address }}</p>
+                    <p><b>Куди:</b><br>{{ active_orders.destination_address }}</p>
+
+                    <p>
+                        <b>Статус:</b>
+                        {{ active_orders.get_status_display }}
+                    </p>
+
+                    <div class="mt-3">
+                        {% if active_orders.status == "accepted" %}
+                            <a href="{% url 'order_on_the_way' %}" class="btn btn-main">
+                                Почати поїздку
+                            </a>
+                        {% elif active_orders.status == "on_the_way" %}
+                            <a href="{% url 'order_arrived' %}" class="btn btn-main">
+                                Прибув на місце
+                            </a>
+                        {% elif active_orders.status == "arrived" %}
+                            <a href="{% url 'order_complete' %}" class="btn btn-main">
+                                Завершити поїздку
+                            </a>
+                        {% endif %}
+                    </div>
                 </div>
             {% else %}
-                <div class="alert alert-info">
-                    Немає активних замовлень
+                <div class="profile-card text-center">
+                    <h5 class="text-secondary">
+                        Немає активних замовлень
+                    </h5>
                 </div>
             {% endif %}
+
         </div>
     </div>
 </div>
+
 {% endblock %}

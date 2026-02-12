@@ -82,15 +82,76 @@
     display: inline-block;
 }
 
-.order-status .accepted { background: #ffeaa7; }
-.order-status .on_the_way { background: #74b9ff; color: white; }
-.order-status .arrived { background: #55efc4; }
-.order-status .completed { background: #00b894; color: white; }
-.order-status .cancelled { background: #d63031; color: white; }
-    </style>
+.order-status-wrapper {
+    display: flex;
+    justify-content: center;
+}
+
+.order-status-badge {
+    padding: 14px 28px;
+    border-radius: 30px;
+    font-weight: 600;
+    font-size: 16px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+}
+
+.status-accepted {
+    background: rgba(59,130,246,0.15);
+    color: #3b82f6;
+}
+
+.status-on_the_way {
+    background: rgba(251,191,36,0.15);
+    color: #fbbf24;
+}
+
+.status-arrived {
+    background: rgba(34,197,94,0.15);
+    color: #22c55e;
+}
+
+.status-completed {
+    background: rgba(16,185,129,0.15);
+    color: #10b981;
+}
+
+.status-cancelled {
+    background: rgba(239,68,68,0.15);
+    color: #ef4444;
+}
+
+
+.order-status-badge.animate {
+    transform: scale(1.05);
+}
+
+.star-rating {
+  direction: rtl;
+  display: inline-flex;
+  font-size: 2rem;
+}
+
+.star-rating input[type="radio"] {
+  display: none;
+}
+
+.star-rating label {
+  color: #ddd;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.star-rating input[type="radio"]:checked ~ label,
+.star-rating label:hover,
+.star-rating label:hover ~ label {
+  color: #fbbf24;
+}
+
+</style>
     
-
-
 <div class="container-fluid client-layout">
     <div class="row vh-100">
 
@@ -156,24 +217,30 @@
                     </form>
                 </div>
             </div>
-            <div class="order-status">
-                {% if active_order.status == "accepted" %}
-                    <span class="accepted">🚕 Водій прийняв замовлення</span>
-                {% elif active_order.status == "on_the_way" %}
-                    <span class="on_the_way">🚗 Водій їде до вас</span>
-                {% elif active_order.status == "arrived" %}
-                    <span class="arrived">📍 Водій на місці</span>
-                {% elif active_order.status == "completed" %}
-                    <span class="completed">✅ Замовлення виконано</span>
-                {% elif active_order.status == "cancelled" %}
-                    <span class="cancelled">❌ Замовлення скасовано</span>
-                {% else %}
-                    <span>Статус невідомий</span>
+            <div class="order-status-wrapper mt-4" >
+                <div id="order-status " class="order-status-badge" >
+                    {% if active_order %}
+                        {{active_order.get_status_display}}
+                    {% else %}
+                        Немає активних замовлень
+                    {% endif %}
+                </div>
+                {% if can_rate %}
+                <form method="post" action="{% url 'rate_driver' active_order.id %}" class="mt-3">
+                    {% csrf_token %}
+                    <label class="form-label">Оцініть водія:</label>
+                    <div class="star-rating">
+                        {% for i in "54321" %}
+                            <input type="radio" id="star{{ i }}" name="rating" value="{{ i }}">
+                            <label for="star{{ i }}">★</label>
+                        {% endfor %}
+                    </div>
+                    <button class="btn btn-main mt-2">Відправити оцінку</button>
+                </form>
                 {% endif %}
             </div>
         </div>
         
-
     </div>
 </div>
 
@@ -193,7 +260,7 @@
     function searchAddress(query, box, input) {
         if (query.length < 3) return box.innerHTML = "";
     
-        fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=5&accept-language=uk&countrycodes=ua&q=${query}`)
+       fetch(`https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=5&accept-language=uk&countrycodes=ua&q=${query}`)
             .then(r => r.json())
             .then(data => {
                 box.innerHTML = "";
@@ -202,6 +269,13 @@
                     a.className = "list-group-item list-group-item-action";
                     a.innerText = p.display_name;
                     a.onclick = () => {
+                        if (p.address) {
+                            document.getElementById("city").value =
+                                p.address.city ||
+                                p.address.town ||
+                                p.address.village ||
+                                "";
+                        }
                         input.value = p.display_name;
     
                         if (input.id === "pickup") {
@@ -221,6 +295,38 @@
     
     pickup.oninput = () => searchAddress(pickup.value, pickup_results, pickup);
     destination.oninput = () => searchAddress(destination.value, dest_results, destination);
+
+
+
+</script>
+<script>
+function checkStatus(){
+    fetch("{% url 'check-order-status' %}")
+        .then(response => response.json())
+        .then(data => {
+            const statusDiv = document.querySelector("order-status")
+
+            if (!data.status){
+                statusDiv.innerHTML =  "Немає активних замовлень";
+                return;
+            }
+
+            if (data.status === "accepted"){
+                statusDiv.innerHTML = "🚕 Водій прийняв замовлення"
+            }
+            else if (data.status === "on_the_way"){
+                statusDiv.innerHTML = "🚗 Водій їде до вас"
+            }
+            else if (data.status === "arrived"){
+                statusDiv.innerHTML = "📍 Водій на місці"
+            }
+            else if (data.status === "completed"){
+                statusDiv.innerHTML = "✅ Замовлення виконано"
+            }
+        })
+}
+checkStatus()
+setInterval(checkStatus , 4000);
 </script>
     
     
