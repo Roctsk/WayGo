@@ -4,20 +4,21 @@ from .models import TaxiOrder
 from drivers.models import DriverRating
 from django.contrib.auth.decorators import login_required
 from django.db.models import Avg
+from django.http import JsonResponse
 
 @login_required
 def rate_driver(request,order_id):
     order = get_object_or_404(TaxiOrder , id=order_id, client=request.user)
 
-    if order.status != "completed":
-        messages.error(request ,"Ви можете оцінити водія лише після завершення поїздки." )
-        return redirect("client-dashboard")
+    if order.status not in ["arrived", "completed"]:
+        return JsonResponse({"error":"Не можна оцінити водія"}, status=400)
+
     
     if request.method == "POST":
         rating = int(request.POST.get("rating", 0))
+
         if rating < 1 or rating > 5:
-            messages.error(request, "Оцінка повинна бути від 1 до 5.")
-            return redirect("client-dashboard")
+            return JsonResponse({"error":"Оцінка від 1-"}, status=400)
         
 
         DriverRating.objects.update_or_create(
@@ -35,8 +36,8 @@ def rate_driver(request,order_id):
         driver.rating = round(avg,1)
         driver.save()
 
-        messages.success(request, f"Ви оцінили водія на {rating} ⭐")
-        return redirect("driver-profile")
+        return JsonResponse({"success":True,"new_rating":driver.rating})
 
-    return redirect("client-dashboard")
+    return JsonResponse({"error":"POST required"}, status=400)
+
 

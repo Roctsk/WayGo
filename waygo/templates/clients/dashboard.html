@@ -127,6 +127,13 @@
 .order-status-badge.animate {
     transform: scale(1.05);
 }
+.order-status-wrapper {
+    display: flex;
+    flex-direction: column; 
+    align-items: center;      
+}
+
+
 
 .star-rating {
   direction: rtl;
@@ -134,20 +141,28 @@
   font-size: 2rem;
 }
 
-.star-rating input[type="radio"] {
-  display: none;
-}
-
 .star-rating label {
-  color: #ddd;
+  color: #444;
   cursor: pointer;
-  transition: color 0.2s;
+  transition: 0.2s;
 }
 
-.star-rating input[type="radio"]:checked ~ label,
 .star-rating label:hover,
 .star-rating label:hover ~ label {
   color: #fbbf24;
+  transform: scale(1.2);
+}
+
+.star-rating input:checked ~ label {
+  color: #fbbf24;
+}
+
+.star-rating input[type="radio"] {
+    display: none;
+}
+
+.star-rating + .btn {
+    margin-top: 10px;
 }
 
 </style>
@@ -170,7 +185,7 @@
                 </div>
                 <div class="flex-grow-1">
                     <div class="fw-semibold small">{{ driver.user.username }}</div>
-                    <div class="text-secondary small">⭐ {{ driver.rating }}</div>
+                    <div class="text-secondary small driver-rating-value">⭐ {{ driver.rating }}</div>
                 </div>
                 <span class="badge bg-success">online</span>
             </div>
@@ -218,7 +233,7 @@
                 </div>
             </div>
             <div class="order-status-wrapper mt-4" >
-                <div id="order-status " class="order-status-badge" >
+                <div id="order-status" class="order-status-badge">
                     {% if active_order %}
                         {{active_order.get_status_display}}
                     {% else %}
@@ -226,7 +241,7 @@
                     {% endif %}
                 </div>
                 {% if can_rate %}
-                <form method="post" action="{% url 'rate_driver' active_order.id %}" class="mt-3">
+                <form id="rating-form" method="post" action="{% url 'rate_driver' active_order.id %}" class="mt-3">
                     {% csrf_token %}
                     <label class="form-label">Оцініть водія:</label>
                     <div class="star-rating">
@@ -235,8 +250,9 @@
                             <label for="star{{ i }}">★</label>
                         {% endfor %}
                     </div>
-                    <button class="btn btn-main mt-2">Відправити оцінку</button>
+                    <button class="btn btn-main mt-2" type="submit">Відправити оцінку</button>
                 </form>
+                <div id="rating-message" class="mt-3"></div>
                 {% endif %}
             </div>
         </div>
@@ -304,7 +320,8 @@ function checkStatus(){
     fetch("{% url 'check-order-status' %}")
         .then(response => response.json())
         .then(data => {
-            const statusDiv = document.querySelector("order-status")
+            const statusDiv = document.querySelector("#order-status");
+            if (!statusDiv) return;
 
             if (!data.status){
                 statusDiv.innerHTML =  "Немає активних замовлень";
@@ -327,6 +344,50 @@ function checkStatus(){
 }
 checkStatus()
 setInterval(checkStatus , 4000);
+</script>
+<script>
+
+document.addEventListener("DOMContentLoaded", function(){
+    const form = document.getElementById("rating-form");
+
+    if (!form) return;
+
+    form.addEventListener("submit", function(e){
+        e.preventDefault();
+
+        const formData = new FormData(form); 
+        fetch(form.action, {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": form.querySelector("[name=csrfmiddlewaretoken]").value
+            },
+            body: formData
+        })
+
+        .then(response => response.json())
+        .then(data => {
+
+            if (data.success){
+                form.style.display = "none";
+
+                const msg = document.getElementById("rating-message");
+                msg.innerHTML = `
+                    <div class="alert alert-success">
+                        ⭐ Дякуємо за відгук!
+                    </div>
+                `;
+
+                const ratingBlock = document.querySelector(".driver-rating-value")
+                if (ratingBlock){
+                    ratingBlock.innerHTML =  "⭐ " + data.new_rating;
+                }
+            }
+
+        })
+    })
+})
+
+
 </script>
     
     

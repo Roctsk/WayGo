@@ -45,10 +45,15 @@
           <div class="d-flex align-items-center gap-2">
             {% if user.is_authenticated %}
               <div class="dropdown">
-                <button class="btn btn-outline-light dropdown-toggle"
-                        data-bs-toggle="dropdown">
-                  {{ user.username|default:"Користувач" }}
-                </button>
+              <button class="btn btn-outline-light dropdown-toggle" data-bs-toggle="dropdown">
+                {% if user.role == "driver" and user.driver %}
+                    {{ user.driver.user.username }}
+                {% elif user.role == "courier" and user.courier %}
+                    {{ user.courier.user.username }}
+                {% else %}
+                    {{ user.username }}
+                {% endif %}
+              </button>
     
                 <ul class="dropdown-menu dropdown-menu-end">
                   <li>
