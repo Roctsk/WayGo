@@ -192,6 +192,28 @@
             {% empty %}
                 <p class="text-secondary small">Немає водіїв онлайн</p>
             {% endfor %}
+
+            <h6 class="text-uppercase text-secondary mb-3">
+                🟢 Кур'єри онлайн
+            </h6>
+        
+
+            {% for courier in online_couriers %}
+            <div class="d-flex align-items-center gap-2 p-2 rounded courier-item mb-1">
+                <div class="rounded-circle bg-warning text-dark
+                            d-flex align-items-center justify-content-center fw-bold"
+                     style="width:38px;height:38px;">
+                    {{ courier.user.username|slice:":1"|upper }}
+                </div>
+                <div class="flex-grow-1">
+                    <div class="fw-semibold small">{{ courier.user.username }}</div>
+                    <div class="text-secondary small driver-rating-value">⭐ {{ driver.rating }}</div>
+                </div>
+                <span class="badge bg-success">online</span>
+            </div>
+            {% empty %}
+                <p class="text-secondary small">Немає кр'єрів онлайн</p>
+            {% endfor %}
         </div>
 
         <div class="col main-area p-4">

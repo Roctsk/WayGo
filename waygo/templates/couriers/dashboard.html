@@ -7,5 +7,114 @@
 {% block content %}
 
 {% load static %}
-<h1>54654654645654656</h1>
+<style>
+
+body{
+    background: linear-gradient(180deg, #020617, #0f172a);
+}
+
+.courier-dashboard {
+    min-height: calc(100vh - 80px);
+    background: linear-gradient(180deg, #020617, #0f172a);
+    color: #e5e7eb;
+}
+
+.dashboard-card {
+    background: rgba(2,6,23,0.85);
+    border-radius: 18px;
+    padding: 28px;
+    box-shadow: 0 25px 50px rgba(0,0,0,.5);
+    border: 1px solid rgba(255,255,255,.06);
+}
+.status-badge {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.status-online {
+    background: rgba(34,197,94,.15);
+    color: #22c55e;
+}
+
+.status-offline {
+    background: rgba(239,68,68,.15);
+    color: #ef4444;
+}
+
+.btn-main {
+    background: #fbbf24;
+    color: #000;
+    font-weight: 600;
+    border-radius: 12px;
+}
+
+.btn-main:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(251,191,36,.35);
+}
+</style>
+
+
+<div class="container courier-dashboard pt-5">
+
+        <h2 class="fw-bold mb-4">🚕 Кабінет курє'ра</h2>
+    
+        <div class="dashboard-card mb-5">
+            <p><b>Авто:</b> {{ courier.transport }}</p>
+    `           <p>{{user.role}}</p>`
+            <p>
+                <b>Статус:</b>
+                <span id="courier-status"
+                      class="status-badge {% if courier.is_online %}status-online{% else %}status-offline{% endif %}">
+                    {% if courier.is_online %}Онлайн{% else %}Офлайн{% endif %}
+                </span>
+            </p>
+    
+            <button id="toggle-onlines-btn"
+                    class="btn {% if courier.is_online %}btn-danger{% else %}btn-main{% endif %} mt-3">
+                {% if courier.is_online %}🔴 Вийти офлайн{% else %}🟢 Вийти онлайн{% endif %}
+            </button>
+        </div>
+    
+            <div class="text-secondary">Немає доступних замовлень</div>
+    
+    </div>
+
+ <script>
+    const btn = document.getElementById('toggle-onlines-btn');
+    const statusText = document.getElementById('courier-status');
+
+    btn.addEventListener('click', () => {
+        fetch("{% url 'toggle-onlines' %}", {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": "{{ csrf_token }}",
+                "Accept": "application/json"
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.is_online){
+                statusText.textContent = "Онлайн";
+                statusText.classList.remove("text-danger");
+                statusText.classList.add("text-success");
+
+                btn.textContent = "🔴 Вийти офлайн";
+                btn.classList.remove("btn-success");
+                btn.classList.add("btn-danger");
+            } else {
+                statusText.textContent = "Офлайн";
+                statusText.classList.remove("text-success");
+                statusText.classList.add("text-danger");
+
+                btn.textContent = "🟢 Вийти онлайн";
+                btn.classList.remove("btn-danger");
+                btn.classList.add("btn-success");
+            }
+        })
+        .catch(error => console.error("Помилка:", error));
+    });
+</script>   
 {% endblock %}

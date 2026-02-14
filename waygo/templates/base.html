@@ -58,11 +58,11 @@
                 <ul class="dropdown-menu dropdown-menu-end">
                   <li>
                     {% if user.role == "driver" %}
-                      <a class="dropdown-item" href="{% url 'drivers:dashboard' %}">Сторінка водія</a>
+                        <a class="dropdown-item" href="{% url 'driver_profile' %}">Мій профіль</a>
                     {% elif user.role == "courier" %}
-                      <a class="dropdown-item" href="{% url 'couriers:dashboard' %}">Сторінка курʼєра</a>
+                        <a class="dropdown-item" href="{% url 'courier_profile' %}">Мій профіль</a>
                     {% else %}
-                      <a class="dropdown-item" href="{% url 'driver_profile' %}">Мій профіль</a>
+                      <a class="dropdown-item" href="{% url 'home' %}">Мій профіль</a>
                     {% endif %}
                   </li>
     

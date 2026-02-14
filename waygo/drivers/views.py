@@ -4,6 +4,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import get_user_model, login
 from .forms import DriverRegisterForm
 from .models import Driver 
+from couriers.models import  Courier
 from orders.models import TaxiOrder
 from django.http import JsonResponse
 from orders.models import  TaxiOrder
@@ -38,7 +39,8 @@ def driver_register(request):
                 email=email,
                 password=password,
                 phone=phone,
-                username =username
+                username =username,
+                role= "driver"
             )
 
             driver = form.save(commit=False)

@@ -1,6 +1,7 @@
 from django.shortcuts import render , redirect
 from django.contrib.auth.decorators import login_required
 from drivers.models import Driver
+from couriers.models import Courier
 from orders.forms import TaxiOrderForm
 from django.conf import settings
 from django.contrib import messages
@@ -14,6 +15,7 @@ from django.http import JsonResponse
 @login_required
 def client_dashboard(request):
     online_drivers = Driver.objects.filter(is_online=True)
+    online_couriers = Courier.objects.filter(is_online=True)
     active_order = TaxiOrder.objects.filter(
         client=request.user
     ).order_by("-create_at").first()
@@ -31,7 +33,7 @@ def client_dashboard(request):
         )
         return redirect("client-dashboard")
 
-    return render(request, "clients/dashboard.html" , {"online_drivers":online_drivers,"active_order":active_order,"can_rate":can_rate})
+    return render(request, "clients/dashboard.html" , {"online_drivers":online_drivers,"active_order":active_order,"can_rate":can_rate,"online_couriers":online_couriers})
 
 
 
