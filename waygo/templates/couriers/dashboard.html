@@ -63,7 +63,7 @@ body{
     
         <div class="dashboard-card mb-5">
             <p><b>Авто:</b> {{ courier.transport }}</p>
-    `           <p>{{user.role}}</p>`
+    `           <p>{{user.role}}</p>
             <p>
                 <b>Статус:</b>
                 <span id="courier-status"
@@ -72,13 +72,33 @@ body{
                 </span>
             </p>
     
-            <button id="toggle-onlines-btn"
+            <button id="courier-toggle-onlines-btn"
                     class="btn {% if courier.is_online %}btn-danger{% else %}btn-main{% endif %} mt-3">
                 {% if courier.is_online %}🔴 Вийти офлайн{% else %}🟢 Вийти онлайн{% endif %}
             </button>
         </div>
     
-            <div class="text-secondary">Немає доступних замовлень</div>
+        {% for order in orders %}
+            <div class="order-card mb-3">
+                <p><b>Звідки:</b>{{order.pickup_address }}</p>
+                <p><b>Куди:</b> {{ order.delivery_address }}</p>
+
+                {% if order.comment %}
+                    <p><b>Коментар:</b> {{ order.comment }}</p>
+                {% endif %}
+
+                <p><b>Ціна:</b> <span class="text-warning">100</span></p>
+
+                <form action="{% url 'courier_accept_order' order.id %}">
+                    {% csrf_token %}
+                    <button class="btn btn-main btn-sm">
+                        Прийняти замовлення
+                    </button>
+                </form>
+            </div>
+        {% empty %}
+            <div class="text-secondary"> Немає доступних замовлень</div>
+        {% forend %}
     
     </div>
 
@@ -87,7 +107,7 @@ body{
     const statusText = document.getElementById('courier-status');
 
     btn.addEventListener('click', () => {
-        fetch("{% url 'toggle-onlines' %}", {
+        fetch("{% url 'courier-toggle-onlines' %}", {
             method: "POST",
             headers: {
                 "X-CSRFToken": "{{ csrf_token }}",

@@ -20,13 +20,16 @@
         backdrop-filter: blur(8px);
         border-right: 1px solid rgba(255,255,255,0.06);
     }
+
     
-    .driver-item {
+    .driver-item,
+    .courier-item  {
         background: rgba(255,255,255,0.03);
         transition: all .25s ease;
     }
     
-    .driver-item:hover {
+    .driver-item:hover ,
+    .courier-item:hover {
         background: rgba(255,255,255,0.08);
         transform: translateX(4px);
     }
@@ -165,6 +168,7 @@
     margin-top: 10px;
 }
 
+
 </style>
     
 <div class="container-fluid client-layout">
@@ -188,6 +192,7 @@
                     <div class="text-secondary small driver-rating-value">⭐ {{ driver.rating }}</div>
                 </div>
                 <span class="badge bg-success">online</span>
+
             </div>
             {% empty %}
                 <p class="text-secondary small">Немає водіїв онлайн</p>
@@ -207,7 +212,7 @@
                 </div>
                 <div class="flex-grow-1">
                     <div class="fw-semibold small">{{ courier.user.username }}</div>
-                    <div class="text-secondary small driver-rating-value">⭐ {{ driver.rating }}</div>
+                    <div class="text-secondary small courier-rating-value">⭐ {{ driver.rating }}</div>
                 </div>
                 <span class="badge bg-success">online</span>
             </div>
@@ -225,6 +230,7 @@
                     <h5 class="fw-bold mb-3">🚕 Швидке замовлення</h5>
                     <form method="post">
                         {% csrf_token %}
+                        <input type="hidden" name="form_type" value="taxi">
 
                         <div class="mb-3">
                             <label>Звідки</label>
@@ -255,7 +261,7 @@
                 </div>
             </div>
             <div class="order-status-wrapper mt-4" >
-                <div id="order-status" class="order-status-badge">
+                <div id="taxi-order-status" class="order-status-badge">
                     {% if active_order %}
                         {{active_order.get_status_display}}
                     {% else %}
@@ -279,6 +285,49 @@
             </div>
         </div>
         
+        <div class="col main-area p-4">
+            <h3 class="fw-bold">📦 Замовлення доставки</h3>
+            <p class="text-secondary">>Створіть доставку та дочекайтесь курʼєра</p>
+
+            <div class="order-card mt-4 p-4">
+                <div class="card-body">
+                    <h5 class="fw-bold mb-3">📦 Швидка доставка</h5>
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="form_type" value="courier">
+
+                        <div class="mb-3">
+                            <label>Звідки забрати</label>
+                            <input id="pickup" name="pickup_address" class="form-control" autocomplete="off">
+                            <div id="pickup-results" class="list-group"></div>
+                        </div>                        
+
+                        <div class="mb-3">
+                            <label>Куди доставити </label>
+                            <input id="delivery" name="delivery_address" class="form-control" autocomplete="off">
+                            <div id="dest-results" class="list-group"></div>
+                        </div>
+                        
+                        <input type="hidden" name="city" id="city">
+
+                        <div class="mb-3">
+                            <label>Коментар (необов'язково)</label>
+                            <input id="comment"  name="comment" class="form-control" placeholder="Наприклад , біля АТБ">
+                        </div>
+
+                        <button class="btn btn-main w-100">Знайти кур'єра</button>
+                    </form>
+                </div>
+            </div>
+            <div class="order-status-wrapper mt-4" >
+                <div id="courier-order-status" class="order-status-badge">
+                    {% if active_order %}
+                        {{active_order.get_status_display}}
+                    {% else %}
+                        Немає активних доставок
+                    {% endif %}
+                </div>
+        </div>
     </div>
 </div>
 
@@ -342,7 +391,7 @@ function checkStatus(){
     fetch("{% url 'check-order-status' %}")
         .then(response => response.json())
         .then(data => {
-            const statusDiv = document.querySelector("#order-status");
+            const statusDiv = document.querySelector("#taxi-order-status");
             if (!statusDiv) return;
 
             if (!data.status){
@@ -367,6 +416,38 @@ function checkStatus(){
 checkStatus()
 setInterval(checkStatus , 4000);
 </script>
+
+<script>
+function checkCourierStatus(){
+    fetch("{% url 'check-courier-status' %}")
+        .then(response => response.json())
+        .then(data => {
+            const statusDiv = document.querySelector("#courier-order-status");
+            if (!statusDiv) return;
+
+            if (!data.status){
+                statusDiv.innerHTML =  "Немає активних доставок";
+                return;
+            }
+
+            if (data.status === "accepted"){
+                statusDiv.innerHTML = "📦 Курʼєр прийняв доставку"
+            }
+            else if (data.status === "on_the_way"){
+                statusDiv.innerHTML = "🚚 Курʼєр в дорозі"
+            }
+            else if (data.status === "arrived"){
+                statusDiv.innerHTML = "📍 Курʼєр на місці"
+            }
+            else if (data.status === "completed"){
+                statusDiv.innerHTML = "✅ Доставку завершено"
+            }
+        })
+}
+checkCourierStatus()
+setInterval(checkCourierStatus , 4000);
+</script>
+
 <script>
 
 document.addEventListener("DOMContentLoaded", function(){

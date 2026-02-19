@@ -16,6 +16,16 @@ from django.http import JsonResponse
 def client_dashboard(request):
     online_drivers = Driver.objects.filter(is_online=True)
     online_couriers = Courier.objects.filter(is_online=True)
+    
+    form_type = request.POST.get('form_type')
+
+    if form_type == "taxi":
+        pickup = request.POST['pickup_address']
+        destination = request.POST['destination_address']
+    elif form_type == "courier":
+        pickup = request.POST['pickup_address']
+        delivery = request.POST['delivery_address']
+
     active_order = TaxiOrder.objects.filter(
         client=request.user
     ).order_by("-create_at").first()
