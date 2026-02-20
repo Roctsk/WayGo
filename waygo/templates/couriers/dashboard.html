@@ -89,7 +89,7 @@ body{
 
                 <p><b>Ціна:</b> <span class="text-warning">100</span></p>
 
-                <form action="{% url 'courier_accept_order' order.id %}">
+                <form method="post" action="{% url 'courier_accept_order' order.id %}">
                     {% csrf_token %}
                     <button class="btn btn-main btn-sm">
                         Прийняти замовлення
@@ -98,12 +98,12 @@ body{
             </div>
         {% empty %}
             <div class="text-secondary"> Немає доступних замовлень</div>
-        {% forend %}
+        {% endfor %}
     
     </div>
 
  <script>
-    const btn = document.getElementById('toggle-onlines-btn');
+    const btn = document.getElementById('courier-toggle-onlines-btn');
     const statusText = document.getElementById('courier-status');
 
     btn.addEventListener('click', () => {

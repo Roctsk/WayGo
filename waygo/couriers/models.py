@@ -21,3 +21,16 @@ class Courier(models.Model):
     def __str__(self):
         return f"Курєр {self.user.phone}"
 
+
+
+class CourierRating(models.Model):
+    courier = models.ForeignKey(Courier, on_delete=models.CASCADE, related_name="ratings")
+    client = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    order = models.OneToOneField("orders.CourierOrder", on_delete=models.CASCADE)
+    rating = models.PositiveSmallIntegerField() 
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.courier.user.username} - {self.rating}⭐" 
+
+

@@ -9,6 +9,7 @@ from orders.models import CourierOrder
 from couriers.models import Courier
 from django.conf import settings
 from django.contrib import messages
+from django.db.models import Avg
 
 
 User = get_user_model()
@@ -64,7 +65,7 @@ def courier_dashboard(request):
     ).first()
 
     if active_order:
-        return render(request,"courier/actives_order.html",{"order":active_order,"courier":courier})
+        return render(request,"couriers/actives_order.html",{"order":active_order,"courier":courier})
 
     orders  = CourierOrder.objects.filter(
         status="created"
@@ -146,9 +147,24 @@ def courier_profile(request):
 def check_courier_status(request):
     order = CourierOrder.objects.filter(
         client=request.user,
-        status__in=["accepted", "on_the_way", "completed"]
-    ).last()
+        status__in=["accepted", "on_the_way", "arrived", "completed"]
+    ).order_by("-create_at").first()
 
     if order:
         return JsonResponse({"status": order.status})
     return JsonResponse({"status": None})
+
+
+def courier_profile(request):
+    courier = request.user.courier
+    comleted_orders = CourierOrder.objects.filter(courier=courier,status="completed").count()
+    active_orders = CourierOrder.objects.filter(courier=courier, status__in = ["accepted","on_the_way"]).first()
+    rating_avg = courier.ratings.aggregate(avg=Avg("rating"))["avg"] or 0
+
+    context = {
+        "courier":courier,
+        "comleted_orders":comleted_orders,
+        "active_orders":active_orders,
+        "rating_avg": round(rating_avg, 1),
+    }
+    return render(request,"couriers/couriers_profile.html",context)

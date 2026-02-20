@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+﻿{% extends "base.html" %}
 
 {% block title %}Клієнт{% endblock %}
 
@@ -212,7 +212,7 @@
                 </div>
                 <div class="flex-grow-1">
                     <div class="fw-semibold small">{{ courier.user.username }}</div>
-                    <div class="text-secondary small courier-rating-value">⭐ {{ driver.rating }}</div>
+                    <div class="text-secondary small courier-rating-value">⭐ {{ courier.rating_avg|default:0|floatformat:1 }}</div>
                 </div>
                 <span class="badge bg-success">online</span>
             </div>
@@ -262,32 +262,32 @@
             </div>
             <div class="order-status-wrapper mt-4" >
                 <div id="taxi-order-status" class="order-status-badge">
-                    {% if active_order %}
-                        {{active_order.get_status_display}}
+                    {% if active_taxi_order %}
+                        {{active_taxi_order.get_status_display}}
                     {% else %}
                         Немає активних замовлень
                     {% endif %}
                 </div>
-                {% if can_rate %}
-                <form id="rating-form" method="post" action="{% url 'rate_driver' active_order.id %}" class="mt-3">
+                {% if can_rate_driver %}
+                <form id="rating-form-driver" method="post" action="{% url 'rate_driver' active_taxi_order.id %}" class="mt-3">
                     {% csrf_token %}
                     <label class="form-label">Оцініть водія:</label>
                     <div class="star-rating">
                         {% for i in "54321" %}
-                            <input type="radio" id="star{{ i }}" name="rating" value="{{ i }}">
-                            <label for="star{{ i }}">★</label>
+                            <input type="radio" id="driver-star{{ i }}" name="rating" value="{{ i }}">
+                            <label for="driver-star{{ i }}">⭐</label>
                         {% endfor %}
                     </div>
                     <button class="btn btn-main mt-2" type="submit">Відправити оцінку</button>
                 </form>
-                <div id="rating-message" class="mt-3"></div>
+                <div id="rating-message-driver" class="mt-3"></div>
                 {% endif %}
             </div>
         </div>
         
         <div class="col main-area p-4">
             <h3 class="fw-bold">📦 Замовлення доставки</h3>
-            <p class="text-secondary">>Створіть доставку та дочекайтесь курʼєра</p>
+            <p class="text-secondary">???????? ???????? ?? ??????????? ???'???</p>
 
             <div class="order-card mt-4 p-4">
                 <div class="card-body">
@@ -321,12 +321,26 @@
             </div>
             <div class="order-status-wrapper mt-4" >
                 <div id="courier-order-status" class="order-status-badge">
-                    {% if active_order %}
-                        {{active_order.get_status_display}}
+                    {% if active_courier_order %}
+                        {{active_courier_order.get_status_display}}
                     {% else %}
                         Немає активних доставок
                     {% endif %}
                 </div>
+                {% if can_rate_courier %}
+                <form id="rating-form-courier" method="post" action="{% url 'rate_courier' active_courier_order.id %}" class="mt-3">
+                    {% csrf_token %}
+                    <label class="form-label">Оцініть кур'єра:</label>
+                    <div class="star-rating">
+                        {% for i in "54321" %}
+                            <input type="radio" id="courier-star{{ i }}" name="rating" value="{{ i }}">
+                            <label for="courier-star{{ i }}">⭐</label>
+                        {% endfor %}
+                    </div>
+                    <button class="btn btn-main mt-2" type="submit">Відправити оцінку</button>
+                </form>
+                <div id="rating-message-courier" class="mt-3"></div>
+                {% endif %}
         </div>
     </div>
 </div>
@@ -451,44 +465,47 @@ setInterval(checkCourierStatus , 4000);
 <script>
 
 document.addEventListener("DOMContentLoaded", function(){
-    const form = document.getElementById("rating-form");
+    function bindRatingForm(formId, messageId, ratingBlockSelector) {
+        const form = document.getElementById(formId);
+        if (!form) return;
 
-    if (!form) return;
+        form.addEventListener("submit", function(e){
+            e.preventDefault();
 
-    form.addEventListener("submit", function(e){
-        e.preventDefault();
+            const formData = new FormData(form);
+            fetch(form.action, {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": form.querySelector("[name=csrfmiddlewaretoken]").value
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    form.style.display = "none";
 
-        const formData = new FormData(form); 
-        fetch(form.action, {
-            method: "POST",
-            headers: {
-                "X-CSRFToken": form.querySelector("[name=csrfmiddlewaretoken]").value
-            },
-            body: formData
-        })
+                    const msg = document.getElementById(messageId);
+                    if (msg) {
+                        msg.innerHTML = `
+                            <div class="alert alert-success">
+                                ⭐ Дякуємо за відгук!
+                            </div>
+                        `;
+                    }
 
-        .then(response => response.json())
-        .then(data => {
-
-            if (data.success){
-                form.style.display = "none";
-
-                const msg = document.getElementById("rating-message");
-                msg.innerHTML = `
-                    <div class="alert alert-success">
-                        ⭐ Дякуємо за відгук!
-                    </div>
-                `;
-
-                const ratingBlock = document.querySelector(".driver-rating-value")
-                if (ratingBlock){
-                    ratingBlock.innerHTML =  "⭐ " + data.new_rating;
+                    const ratingBlock = document.querySelector(ratingBlockSelector);
+                    if (ratingBlock) {
+                        ratingBlock.innerHTML = "в­ђ " + data.new_rating;
+                    }
                 }
-            }
+            });
+        });
+    }
 
-        })
-    })
-})
+    bindRatingForm("rating-form-driver", "rating-message-driver", ".driver-rating-value");
+    bindRatingForm("rating-form-courier", "rating-message-courier", ".courier-rating-value");
+});
 
 
 </script>
@@ -498,3 +515,4 @@ document.addEventListener("DOMContentLoaded", function(){
 
 
 {% endblock %}
+

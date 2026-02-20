@@ -1,7 +1,7 @@
 ﻿{% extends "base.html" %}
 {% load static %}
 
-{% block title %}Кабінет водія{% endblock %}
+{% block title %}Кабінет кур'єра{% endblock %}
 
 {% block content %}
 
@@ -10,19 +10,19 @@
 
     <div class="p-3 bg-white shadow fixed-bottom">
         <p><b>Звідки:</b> {{ order.pickup_address }}</p>
-        <p><b>Куди:</b> {{ order.destination_address }}</p>
+        <p><b>Куди:</b> {{ order.delivery_address }}</p>
 
         {% if order.status == "accepted" %}
-            <a href="{% url 'order_on_the_way' %}" class="btn btn-primary w-100">
-                Почати поїздку
+            <a href="{% url 'courier_order_on_the_way' %}" class="btn btn-primary w-100">
+                Почати доставку
             </a>
         {% elif order.status == "on_the_way" %}
-            <a href="{% url 'order_arrived' %}" class="btn btn-warning w-100">
+            <a href="{% url 'courier_order_arrived' %}" class="btn btn-warning w-100">
                 Я прибув
             </a>
         {% elif order.status == "arrived" %}
-            <a href="{% url 'order_complete' %}" class="btn btn-success w-100">
-                Завершити поїздку
+            <a href="{% url 'courier_order_complete' %}" class="btn btn-success w-100">
+                Завершити доставку
             </a>
         {% endif %}
     </div>
