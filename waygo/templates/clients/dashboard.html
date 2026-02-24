@@ -168,6 +168,26 @@
     margin-top: 10px;
 }
 
+.help-card{
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 16px;
+    padding: 20px;
+}
+.help-item{
+    background: rgba(2,6,23,0.65);
+    border: 1px solid rgba(255,255,255,.06);
+    border-radius: 12px;
+    padding: 12px 14px;
+}
+
+.driver-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+}
 
 </style>
     
@@ -185,7 +205,13 @@
                 <div class="rounded-circle bg-warning text-dark
                             d-flex align-items-center justify-content-center fw-bold"
                      style="width:38px;height:38px;">
-                    {{ driver.user.username|slice:":1"|upper }}
+                    {% if driver.photo %}
+                        <img src="{{ driver.photo.url }}"  class="driver-avatar" alt="Аватар">
+                    {% else %}
+                        <div class="avatar-placeholder">
+                            {{ driver.user.username|slice:":1"|upper }}
+                        </div>
+                    {% endif %}
                 </div>
                 <div class="flex-grow-1">
                     <div class="fw-semibold small">{{ driver.user.username }}</div>
@@ -234,14 +260,14 @@
 
                         <div class="mb-3">
                             <label>Звідки</label>
-                            <input id="pickup" name="pickup_address" class="form-control" autocomplete="off">
-                            <div id="pickup-results" class="list-group"></div>
+                            <input id="pickup-taxi" name="pickup_address" class="form-control" autocomplete="off">
+                            <div id="pickup-results-taxi" class="list-group"></div>
                         </div>                        
 
                         <div class="mb-3">
                             <label>Куди</label>
-                            <input id="destination" name="destination_address" class="form-control" autocomplete="off">
-                            <div id="dest-results" class="list-group"></div>
+                            <input id="destination-taxi" name="destination_address" class="form-control" autocomplete="off">
+                            <div id="dest-results-taxi" class="list-group"></div>
                         </div>
                         
                         <input type="hidden" name="pickup_lat" id="pickup_lat">
@@ -249,7 +275,7 @@
                         <input type="hidden" name="dest_lat" id="dest_lat">
                         <input type="hidden" name="dest_lon" id="dest_lon">
 
-                        <input type="hidden" name="city" id="city">
+                        <input type="hidden" name="city" id="city_taxi">
 
                         <div class="mb-3">
                             <label>Коментар (необов'язково)</label>
@@ -287,7 +313,7 @@
         
         <div class="col main-area p-4">
             <h3 class="fw-bold">📦 Замовлення доставки</h3>
-            <p class="text-secondary">???????? ???????? ?? ??????????? ???'???</p>
+            <p class="text-secondary">Оберіть кур'ра або створіть швидку доставку</p>
 
             <div class="order-card mt-4 p-4">
                 <div class="card-body">
@@ -298,17 +324,21 @@
 
                         <div class="mb-3">
                             <label>Звідки забрати</label>
-                            <input id="pickup" name="pickup_address" class="form-control" autocomplete="off">
-                            <div id="pickup-results" class="list-group"></div>
+                            <input id="pickup-courier" name="pickup_address" class="form-control" autocomplete="off">
+                            <div id="pickup-results-courier" class="list-group"></div>
                         </div>                        
 
                         <div class="mb-3">
                             <label>Куди доставити </label>
-                            <input id="delivery" name="delivery_address" class="form-control" autocomplete="off">
-                            <div id="dest-results" class="list-group"></div>
+                            <input id="delivery-courier" name="delivery_address" class="form-control" autocomplete="off">
+                            <div id="dest-results-courier" class="list-group"></div>
                         </div>
                         
-                        <input type="hidden" name="city" id="city">
+                        <input type="hidden" name="city" id="city_courier">
+                        <input type="hidden" name="pickup_lat" id="pickup_lat_courier">
+                        <input type="hidden" name="pickup_lon" id="pickup_lon_courier">
+                        <input type="hidden" name="dest_lat" id="dest_lat_courier">
+                        <input type="hidden" name="dest_lon" id="dest_lon_courier">
 
                         <div class="mb-3">
                             <label>Коментар (необов'язково)</label>
@@ -343,59 +373,105 @@
                 {% endif %}
         </div>
     </div>
+    <div class="row mt-3 px-4 pb-4">
+    <div class="col-12">
+        <div class="help-card">
+            <h5 class="fw-bold mb-3">Як оформити замовлення</h5>
+            <div class="row g-2">
+                <div class="col-md-3"><div class="help-item">1. Оберіть тип: таксі або доставка</div></div>
+                <div class="col-md-3"><div class="help-item">2. Вкажіть адресу звідки і куди</div></div>
+                <div class="col-md-3"><div class="help-item">3. Додайте коментар (під’їзд, орієнтир)</div></div>
+                <div class="col-md-3"><div class="help-item">4. Відстежуйте статус замовлення в реальному часі</div></div>
+            </div>
+            <div class="text-secondary small mt-3">
+                Після завершення не забудьте поставити оцінку водію або кур’єру.
+            </div>
+        </div>
+    </div>
+</div>
+
 </div>
 
 
+
 <script>
-    const pickup = document.getElementById("pickup");
-    const destination = document.getElementById("destination");
-    
-    const pickup_results = document.getElementById("pickup-results");
-    const dest_results = document.getElementById("dest-results");
-    
-    const pickup_lat = document.getElementById("pickup_lat");
-    const pickup_lon = document.getElementById("pickup_lon");
-    const dest_lat = document.getElementById("dest_lat");
-    const dest_lon = document.getElementById("dest_lon");
-    
-    function searchAddress(query, box, input) {
-        if (query.length < 3) return box.innerHTML = "";
-    
-       fetch(`https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=5&accept-language=uk&countrycodes=ua&q=${query}`)
-            .then(r => r.json())
-            .then(data => {
-                box.innerHTML = "";
-                data.forEach(p => {
-                    const a = document.createElement("a");
-                    a.className = "list-group-item list-group-item-action";
-                    a.innerText = p.display_name;
-                    a.onclick = () => {
-                        if (p.address) {
-                            document.getElementById("city").value =
-                                p.address.city ||
-                                p.address.town ||
-                                p.address.village ||
-                                "";
-                        }
-                        input.value = p.display_name;
-    
-                        if (input.id === "pickup") {
-                            pickup_lat.value = p.lat;
-                            pickup_lon.value = p.lon;
-                        } else {
-                            dest_lat.value = p.lat;
-                            dest_lon.value = p.lon;
-                        }
-    
-                        box.innerHTML = "";
-                    };
-                    box.appendChild(a);
+    function bindAddressSearch(config) {
+        const input = document.getElementById(config.inputId);
+        const resultsBox = document.getElementById(config.resultsId);
+        const latEl = document.getElementById(config.latId);
+        const lonEl = document.getElementById(config.lonId);
+
+        if (!input || !resultsBox) return;
+
+        input.addEventListener("input", () => {
+            const query = input.value.trim();
+            if (query.length < 3) {
+                resultsBox.innerHTML = "";
+                return;
+            }
+
+            fetch(`https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=5&accept-language=uk&countrycodes=ua&q=${encodeURIComponent(query)}`)
+                .then(r => r.json())
+                .then(data => {
+                    resultsBox.innerHTML = "";
+                    data.forEach(p => {
+                        const item = document.createElement("a");
+                        item.className = "list-group-item list-group-item-action";
+                        item.innerText = p.display_name;
+                        item.onclick = () => {
+                            input.value = p.display_name;
+
+                            if (latEl && lonEl) {
+                                latEl.value = p.lat;
+                                lonEl.value = p.lon;
+                            }
+
+                            if (p.address) {
+                                const cityEl = document.getElementById("city_taxi");
+                                if (cityEl) {
+                                    cityEl.value =
+                                        p.address.city ||
+                                        p.address.town ||
+                                        p.address.village ||
+                                        "";
+                                }
+                            }
+
+                            resultsBox.innerHTML = "";
+                        };
+                        resultsBox.appendChild(item);
+                    });
                 });
-            });
+        });
     }
-    
-    pickup.oninput = () => searchAddress(pickup.value, pickup_results, pickup);
-    destination.oninput = () => searchAddress(destination.value, dest_results, destination);
+
+    bindAddressSearch({
+        inputId: "pickup-taxi",
+        resultsId: "pickup-results-taxi",
+        latId: "pickup_lat",
+        lonId: "pickup_lon"
+    });
+
+    bindAddressSearch({
+        inputId: "destination-taxi",
+        resultsId: "dest-results-taxi",
+        latId: "dest_lat",
+        lonId: "dest_lon"
+    });
+
+    bindAddressSearch({
+        inputId: "pickup-courier",
+        resultsId: "pickup-results-courier",
+        latId: "pickup_lat_courier",
+        lonId: "pickup_lon_courier"
+    });
+
+    bindAddressSearch({
+        inputId: "delivery-courier",
+        resultsId: "dest-results-courier",
+        latId: "dest_lat_courier",
+        lonId: "dest_lon_courier"
+    });
 
 
 
@@ -445,13 +521,13 @@ function checkCourierStatus(){
             }
 
             if (data.status === "accepted"){
-                statusDiv.innerHTML = "📦 Курʼєр прийняв доставку"
+                statusDiv.innerHTML = "📦 Кур'єр прийняв доставку"
             }
             else if (data.status === "on_the_way"){
-                statusDiv.innerHTML = "🚚 Курʼєр в дорозі"
+                statusDiv.innerHTML = "🚚 Кур'єр в дорозі"
             }
             else if (data.status === "arrived"){
-                statusDiv.innerHTML = "📍 Курʼєр на місці"
+                statusDiv.innerHTML = "📍 Кур'єр на місці"
             }
             else if (data.status === "completed"){
                 statusDiv.innerHTML = "✅ Доставку завершено"
@@ -496,7 +572,7 @@ document.addEventListener("DOMContentLoaded", function(){
 
                     const ratingBlock = document.querySelector(ratingBlockSelector);
                     if (ratingBlock) {
-                        ratingBlock.innerHTML = "в­ђ " + data.new_rating;
+                        ratingBlock.innerHTML = "⭐ " + data.new_rating;
                     }
                 }
             });
@@ -515,4 +591,5 @@ document.addEventListener("DOMContentLoaded", function(){
 
 
 {% endblock %}
+
 

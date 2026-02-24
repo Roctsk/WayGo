@@ -84,3 +84,8 @@ def check_order_status(request):
     if order:
         return JsonResponse({"status":order.status})
     return JsonResponse({"status":None})
+
+
+
+def client_profile(request):
+    return render(request,"clients/client_profile.html")

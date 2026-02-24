@@ -62,7 +62,7 @@
                     {% elif user.role == "courier" %}
                         <a class="dropdown-item" href="{% url 'courier_profile' %}">Мій профіль</a>
                     {% else %}
-                      <a class="dropdown-item" href="{% url 'home' %}">Мій профіль</a>
+                      <a class="dropdown-item" href="{% url 'client_profile' %}">Мій профіль</a>
                     {% endif %}
                   </li>
     
@@ -71,7 +71,7 @@
                   <li>
                     <form class="dropdown-item text-danger" method="post" action="{% url 'logout' %}">
                       {% csrf_token %}
-                      <button type="submit">Вийти</button>
+                      <button class="btn-logout w-100 text-start" type="submit">Вийти</button>
                     </form>
                   </li>
                 </ul>

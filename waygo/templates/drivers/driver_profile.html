@@ -100,19 +100,27 @@ body {
         <div class="col-12">
             <div class="stat-box">
                 <div class="small text-secondary">Баланс</div>
-                <div class="fs-5 fw-bold"> 0.00 ₴ </div>
+                <div class="fs-5 fw-bold"> {{driver.balance}}</div>
             </div>
         </div>
         <div class="col-md-4 d-flex justify-content-center">
             <div class="profile-card text-center">
 
-                {% if driver.photo %}
-                    <img src="{{ driver.photo.url }}" class="profile-avatar">
-                {% else %}
-                    <div class="avatar-placeholder">
-                        {{ driver.user.username|slice:":1"|upper }}
-                    </div>
-                {% endif %}
+
+                <form method="post" action="{% url 'driver_upload_photo' %}" enctype="multipart/form-data" id="avatar-form">
+                    {% csrf_token %}
+                    <label for="avatar-input" style="cursor:pointer; display:inline-block;">
+                    {% if driver.photo %}
+                        <img src="{{ driver.photo.url }}"  class="profile-avatar" alt="Аватар">
+                    {% else %}
+                        <div class="avatar-placeholder">
+                            {{ driver.user.username|slice:":1"|upper }}
+                        </div>
+                    {% endif %}
+                    </label>
+                    <input id="avatar-input" type="file" name="photo" accept="image/*" style="display:none;">
+                </form>
+
 
                 <h3 class="mt-3">{{ driver.user.username }}</h3>
                 <p>⭐ {{ driver.rating }}</p>
@@ -142,7 +150,6 @@ body {
 
             </div>
         </div>
-
         <div class="col-md-8">
 
             {% if active_orders %}
@@ -182,7 +189,61 @@ body {
             {% endif %}
 
         </div>
+        <div class="stat-box mt-3">
+            <div class="d-flex justify-content-between mb-2">
+                <div class="small text-secondary">Бонусний прогрес</div>
+                <div class="small text-warning">{{ bonus_progress }}/{{ bonus_goal }}</div>
+            </div>
+
+            <div class="progress" style="height: 10px; background: rgba(255,255,255,.08);">
+                <div class="progress-bar bg-warning"
+                    role="progressbar"
+                    style="width: {{ bonus_percent }}%;"
+                    aria-valuenow="{{ bonus_percent }}"
+                    aria-valuemin="0"
+                    aria-valuemax="100">
+                </div>
+            </div>
+
+            <div class="small text-secondary mt-2">
+                До бонусу {{ bonus_reward }} грн залишилось {{ bonus_left }} замовлень
+            </div>
+        </div>
+        <div class="small text-secondary mt-1">
+            Виплачено бонусів: {{ driver.bonus_for_paid }}
+        </div>
+
+        <div class="stat-box mt-3">
+            <div class="d-flex justify-content-between mb-2">
+                <div class="small text-secondary">Бонусний за рейтинг (середня >= 4.0)</div>
+                <div class="small text-success">{{ rating_bonus_progress }}/{{ rating_bonus_goal }}</div>
+            </div>
+
+            <div class="progress" style="height: 10px; background: rgba(255,255,255,.08);">
+                <div class="progress-bar bg-success"
+                    role="progressbar"
+                    style="width: {{ rating_bonus_percent }}%;"
+                    aria-valuenow="{{ rating_bonus_percent }}"
+                    aria-valuemin="0"
+                    aria-valuemax="100">
+                </div>
+            </div>
+
+            <div class="small text-secondary mt-2">
+                До бонусу {{ rating_bonus_reward }}  грн за рейтинг залишилось {{ rating_bonus_left }} оцінених поїздок
+            </div>
+        </div>
+        <div class="small text-secondary mt-1">
+               Оцінено поїздок: {{ rated_orders }}| Виплачено рейтинг-бонус циклів: {{ driver.rating_bonus_for_paid }}
+        </div>
     </div>
 </div>
 
+<script>
+    document.getElementById("avatar-input").addEventListener("change", function(){
+        if (this.files.length){
+            document.getElementById("avatar-form").submit();
+        }
+    });
+</script>
 {% endblock %}

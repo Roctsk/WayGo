@@ -10,4 +10,5 @@ urlpatterns = [
     path("order/on-the-way/", views.order_on_the_way, name="order_on_the_way"),
     path("order/arrived/", views.order_arrived, name="order_arrived"),
     path("order/complete/", views.order_complete, name="order_complete"),
+    path("profile/photo/", views.driver_upload_photo, name="driver_upload_photo"),
 ]

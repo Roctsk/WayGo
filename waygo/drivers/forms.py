@@ -13,3 +13,9 @@ class DriverRegisterForm(forms.ModelForm):
     class Meta:
         model = Driver
         fields = ["car_model", "car_number",'city']
+
+
+class DriverPhotoForm(forms.ModelForm):
+    class Meta:
+        model = Driver
+        fields = ["photo"]

@@ -1,11 +1,11 @@
 from django.shortcuts import render ,get_object_or_404 ,redirect
-from django.contrib import messages
 from .models import TaxiOrder, CourierOrder
-from drivers.models import DriverRating
+from drivers.models import DriverRating ,Driver
 from couriers.models import CourierRating
 from django.contrib.auth.decorators import login_required
-from django.db.models import Avg
+from django.db.models import F, Avg
 from django.http import JsonResponse
+from decimal import Decimal
 
 @login_required
 def rate_driver(request,order_id):
@@ -34,8 +34,27 @@ def rate_driver(request,order_id):
 
         driver = order.driver
         avg = driver.ratings.aggregate(Avg("rating"))["rating__avg"]
-        driver.rating = round(avg,1)
-        driver.save()
+        driver.rating = round(avg, 1) if avg else 0
+        driver.save(update_fields=["rating"])
+
+        rating_qs = DriverRating.objects.filter(driver=driver).order_by("created_at")
+        rated_count = rating_qs.count()
+
+        earned_steps = rated_count // 10
+        new_steps = earned_steps - driver.rating_bonus_for_paid
+
+        bonus_total = Decimal("0.00")
+        if new_steps > 0:
+            for step in range(driver.rating_bonus_for_paid, earned_steps):
+                check = rating_qs[step * 10:(step + 1) * 10]
+                check_avg = sum(r.rating for r in check) / 10
+                if check_avg >= 4.0:
+                    bonus_total += Decimal("300.00")
+
+            Driver.objects.filter(pk=driver.pk).update(
+                balance=F("balance") + bonus_total,
+                rating_bonus_for_paid=earned_steps,
+            )
 
         return JsonResponse({"success":True,"new_rating":driver.rating})
 
@@ -73,5 +92,4 @@ def rate_courier(request, order_id):
         return JsonResponse({"success": True, "new_rating": round(avg, 1) if avg else 0})
 
     return JsonResponse({"error": "POST required"}, status=400)
-
 

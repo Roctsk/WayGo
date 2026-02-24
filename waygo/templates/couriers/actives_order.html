@@ -34,24 +34,11 @@
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
 
-<script type="application/json" id="order-coords">
-    {
-        "pickup_lat": {{ order.pickup_lat|default:"null" }},
-        "pickup_lon": {{ order.pickup_lon|default:"null" }},
-        "dest_lat": {{ order.dest_lat|default:"null" }},
-        "dest_lon": {{ order.dest_lon|default:"null" }}
-    }
-</script>
-
 <script>
-const coordsEl = document.getElementById("order-coords");
-let coords = { pickup_lat: null, pickup_lon: null, dest_lat: null, dest_lon: null };
-
-try {
-    coords = JSON.parse(coordsEl.textContent);
-} catch (e) {
-    console.warn("Немає координат замовлення");
-}
+const orderData = {
+    pickupAddress: "{{ order.pickup_address|escapejs }}",
+    deliveryAddress: "{{ order.delivery_address|escapejs }}"
+};
 
 const map = L.map('map').setView([49.8397, 24.0297], 13);
 
@@ -59,22 +46,45 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© OpenStreetMap'
 }).addTo(map);
 
-if (coords.pickup_lat && coords.pickup_lon && coords.dest_lat && coords.dest_lon) {
-    const start = L.latLng(parseFloat(coords.pickup_lat), parseFloat(coords.pickup_lon));
-    const end = L.latLng(parseFloat(coords.dest_lat), parseFloat(coords.dest_lon));
+async function geocodeAddress(address) {
+    const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&accept-language=uk&countrycodes=ua&q=${encodeURIComponent(address)}`;
+    const response = await fetch(url);
+    const results = await response.json();
 
-    L.marker(start).addTo(map).bindPopup("Точка A");
-    L.marker(end).addTo(map).bindPopup("Точка B");
+    if (!results.length) return null;
 
-    L.Routing.control({
-        waypoints: [start, end],
-        addWaypoints: false,
-        routeWhileDragging: false,
-        show: false
-    }).addTo(map);
-
-    map.fitBounds([start, end]);
+    return L.latLng(parseFloat(results[0].lat), parseFloat(results[0].lon));
 }
+
+async function buildRouteByAddresses() {
+    try {
+        const [start, end] = await Promise.all([
+            geocodeAddress(orderData.pickupAddress),
+            geocodeAddress(orderData.deliveryAddress)
+        ]);
+
+        if (!start || !end) {
+            console.warn("Не вдалося знайти координати однієї з адрес");
+            return;
+        }
+
+        L.marker(start).addTo(map).bindPopup("Точка A");
+        L.marker(end).addTo(map).bindPopup("Точка B");
+
+        L.Routing.control({
+            waypoints: [start, end],
+            addWaypoints: false,
+            routeWhileDragging: false,
+            show: false
+        }).addTo(map);
+
+        map.fitBounds([start, end], { padding: [30, 30] });
+    } catch (error) {
+        console.error("Помилка побудови маршруту:", error);
+    }
+}
+
+buildRouteByAddresses();
 </script>
 
 {% endblock %}
