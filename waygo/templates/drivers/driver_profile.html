@@ -94,6 +94,83 @@ body {
     transform: translateY(-2px);
     box-shadow: 0 10px 25px rgba(251,191,36,.3);
 }
+
+
+
+
+
+.ride-card {
+    position: relative;
+    overflow: hidden;
+    border-radius: 20px;
+    padding: 22px;
+    background:
+        radial-gradient(1200px 300px at -10% -20%, rgba(59,130,246,.28), transparent 60%),
+        radial-gradient(800px 280px at 110% 120%, rgba(16,185,129,.2), transparent 60%),
+        linear-gradient(135deg, rgba(15,23,42,.95), rgba(2,6,23,.98));
+    border: 1px solid rgba(148,163,184,.25);
+    box-shadow: 0 20px 60px rgba(2,6,23,.55), inset 0 0 30px rgba(59,130,246,.08);
+}
+
+.ride-card::before {
+    content: "";
+    position: absolute;
+    top: -80%;
+    left: -20%;
+    width: 45%;
+    height: 260%;
+    background: linear-gradient(to right, transparent, rgba(255,255,255,.14), transparent);
+    transform: rotate(18deg);
+    animation: shine 4.5s linear infinite;
+}
+
+@keyframes shine {
+    from { transform: translateX(-260%) rotate(18deg); }
+    to   { transform: translateX(420%) rotate(18deg); }
+}
+
+.ride-title {
+    font-weight: 800;
+    letter-spacing: .3px;
+    color: #bfdbfe;
+}
+
+.ride-sub {
+    color: #93c5fd;
+    font-size: .9rem;
+}
+
+.ride-track {
+    height: 14px;
+    border-radius: 999px;
+    background: rgba(255,255,255,.08);
+    overflow: hidden;
+}
+
+.ride-bar {
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #38bdf8, #22d3ee, #34d399);
+    box-shadow: 0 0 16px rgba(34,211,238,.55);
+    transition: width .6s ease;
+}
+
+.ride-number {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #e0f2fe;
+}
+
+.ride-badge {
+    display: inline-block;
+    font-size: .75rem;
+    padding: 4px 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(167,243,208,.5);
+    background: rgba(16,185,129,.15);
+    color: #a7f3d0;
+}
+
 </style>
 <div class="container driver-layout py-5">
     <div class="row g-4">
@@ -103,6 +180,40 @@ body {
                 <div class="fs-5 fw-bold"> {{driver.balance}}</div>
             </div>
         </div>
+        <div class="row g-3 mt-1">
+            <div class="col-6 col-md">
+                <div class="stat-box text-center">
+                    <div class="small text-secondary">За день(виконано поїздок)</div>
+                    <div class="fs-6 fw-bold">{{ trip_starts.day }}</div>
+                </div>
+            </div>
+            <div class="col-6 col-md">
+                <div class="stat-box text-center">
+                    <div class="small text-secondary">За тиждень</div>
+                    <div class="fs-6 fw-bold">{{ trip_starts.week }}</div>
+                </div>
+            </div>
+            <div class="col-6 col-md">
+                <div class="stat-box text-center">
+                    <div class="small text-secondary">За місяць</div>
+                    <div class="fs-6 fw-bold">{{ trip_starts.month }}</div>
+                </div>
+            </div>
+            <div class="col-6 col-md">
+                <div class="stat-box text-center">
+                    <div class="small text-secondary">За рік </div>
+                    <div class="fs-6 fw-bold">{{ trip_starts.year }}</div>
+                </div>
+            </div>
+            <div class="col-6 col-md">
+                <div class="stat-box text-center">
+                    <div class="small text-secondary">За весь час </div>
+                    <div class="fs-6 fw-bold">{{ trip_starts.all_time }}</div>
+                </div>
+            </div>
+
+        </div>
+
         <div class="col-md-4 d-flex justify-content-center">
             <div class="profile-card text-center">
 
@@ -189,6 +300,35 @@ body {
             {% endif %}
 
         </div>
+
+        <div class="ride-card mt-3">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <div>
+                    <div class="ride-title">🚀 Легендарний квест: 500 поїздок</div>
+                    <div class="ride-sub">Нагорода: +{{ ride_reward }} грн</div>
+                </div>
+                <div class="ride-badge">
+                    {{ ride_progress }}/{{ ride_goal }}
+                </div>
+            </div>
+
+            <div class="ride-track mb-2">
+                <div class="ride-bar" style="width: {{ ride_percent }}%;"></div>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="small text-secondary">
+                    {% if driver.ride_500_for_paid %}
+                        Бонус вже виплачено ✅
+                    {% else %}
+                        Залишилось {{ ride_left }} поїздок
+                    {% endif %}
+                </div>
+                <div class="ride-number">{{ ride_percent }}%</div>
+            </div>
+        </div>
+
+
         <div class="stat-box mt-3">
             <div class="d-flex justify-content-between mb-2">
                 <div class="small text-secondary">Бонусний прогрес</div>

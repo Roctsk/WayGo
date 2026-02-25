@@ -1,22 +1,20 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Профіль кур'єра{% endblock %}
+{% block title %}Профіль клієнта{% endblock %}
 
 {% block content %}
-
 <style>
 body {
     min-height: 100vh;
-    background: linear-gradient(140deg, #0f172a,#020617);
+    background: linear-gradient(140deg, #0f172a, #020617);
     color: #e5e7eb;
 }
-.driver-layout {
+.client-layout {
     min-height: 100vh;
     background: linear-gradient(180deg, #020617, #0f172a);
     color: #e5e7eb;
 }
-
 .profile-card {
     display: flex;
     flex-direction: column;
@@ -29,14 +27,6 @@ body {
     box-shadow: 0 30px 60px rgba(0,0,0,.5);
     backdrop-filter: blur(12px);
 }
-
-.profile-avatar {
-    width: 230px;
-    height: 230px;
-    border-radius: 50%;
-    border: 3px solid rgba(251,191,36,.6);
-}
-
 .avatar-placeholder {
     width: 150px;
     height: 150px;
@@ -49,17 +39,6 @@ body {
     font-weight: bold;
     border: 3px solid rgba(251,191,36,.6);
 }
-
-.status-online {
-    color: #22c55e;
-    font-weight: 600;
-}
-
-.status-offline {
-    color: #ef4444;
-    font-weight: 600;
-}
-
 .stat-box {
     background: rgba(255,255,255,0.04);
     padding: 18px;
@@ -67,12 +46,10 @@ body {
     border: 1px solid rgba(255,255,255,.06);
     transition: .25s;
 }
-
 .stat-box:hover {
     transform: translateY(-4px);
     background: rgba(255,255,255,0.08);
 }
-
 .order-card-modern {
     background: rgba(2,6,23,0.9);
     border-radius: 18px;
@@ -80,38 +57,119 @@ body {
     border: 1px solid rgba(255,255,255,.06);
     box-shadow: 0 20px 40px rgba(0,0,0,.4);
 }
-
-.btn-main {
-    background: #fbbf24;
-    color: #000;
-    font-weight: 600;
-    border-radius: 12px;
-    padding: 10px 20px;
-}
-
-.btn-main:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 25px rgba(251,191,36,.3);
-}
 </style>
 
-<div class="container driver-layout py-5">
+<div class="container client-layout py-5">
     <div class="row g-4">
-        <div class="col-md-4 d-flex justify-content-center">
-            <div class="profile-card text-center">
+        <div class="col-md-4">
+            <div class="profile-card text-center h-100">
+                <div class="avatar-placeholder">
+                    {{ request.user.username|slice:":1"|upper }}
+                </div>
+                <h3 class="mt-3">{{ request.user.username }}</h3>
+                <p class="text-secondary mb-0">{{ request.user.phone }}</p>
+            </div>
+        </div>
 
-                {% if request.user.client.photo %}
-                    <img src="{{ request.user.client.photo}}" class="profile-avatar">
-                {% else %}
-                    <div class="avatar-placeholder">
-                        {{request.user.username|slice:":1"|upper }}
+        <div class="col-md-8">
+            <div class="row g-3">
+                <div class="col-4">
+                    <div class="stat-box text-center">
+                        <div class="small text-secondary">Всього</div>
+                        <div class="fs-5 fw-bold">{{ all_trips }}</div>
                     </div>
+                </div>
+                <div class="col-4">
+                    <div class="stat-box text-center">
+                        <div class="small text-secondary">Виконано</div>
+                        <div class="fs-5 fw-bold">{{ completed_trips }}</div>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="stat-box text-center">
+                        <div class="small text-secondary">Скасовано</div>
+                        <div class="fs-5 fw-bold">{{ cancelled_trips }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="order-card-modern mt-3">
+                <h5 class="mb-3">Активне замовлення</h5>
+                {% if active_taxi_order %}
+                    <p><b>Звідки:</b><br>{{ active_taxi_order.pickup_address }}</p>
+                    <p><b>Куди:</b><br>{{ active_taxi_order.destination_address }}</p>
+                    <p><b>Статус:</b> {{ active_taxi_order.get_status_display }}</p>
+                {% else %}
+                    <div class="text-secondary">Немає активного замовлення</div>
                 {% endif %}
+            </div>
+        </div>
 
-                <h3 class="mt-3">{{ request.user.username}}</h3>
+        <div class="col-12">
+            <div class="order-card-modern">
+                <h5 class="mb-3">Останні 5 поїздок</h5>
+                {% if recent_trips %}
+                    <div class="table-responsive">
+                        <table class="table table-dark table-hover align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Дата</th>
+                                    <th>Звідки</th>
+                                    <th>Куди</th>
+                                    <th>Ціна</th>
+                                    <th>Статус</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for trip in recent_trips %}
+                                <tr>
+                                    <td>{{ trip.create_at|date:"d.m.Y H:i" }}</td>
+                                    <td>{{ trip.pickup_address }}</td>
+                                    <td>{{ trip.destination_address }}</td>
+                                    <td>{{ trip.price|default:"-" }}</td>
+                                    <td>{{ trip.get_status_display }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-secondary">Ще немає поїздок</div>
+                {% endif %}
+            </div>
+        </div>
 
+        <div class="col-md-6">
+            <div class="stat-box h-100">
+                <h6 class="mb-2">Топ-3 звідки</h6>
+                {% if top_pickups %}
+                    {% for item in top_pickups %}
+                        <div class="d-flex justify-content-between py-1 border-bottom border-secondary">
+                            <span>{{ item.pickup_address }}</span>
+                            <span class="text-warning">{{ item.total }}</span>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-secondary">Немає даних</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="stat-box h-100">
+                <h6 class="mb-2">Топ-3 куди</h6>
+                {% if top_destination %}
+                    {% for item in top_destination %}
+                        <div class="d-flex justify-content-between py-1 border-bottom border-secondary">
+                            <span>{{ item.destination_address }}</span>
+                            <span class="text-warning">{{ item.total }}</span>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-secondary">Немає даних</div>
+                {% endif %}
+            </div>
         </div>
     </div>
 </div>
-
 {% endblock %}

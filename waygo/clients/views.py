@@ -4,7 +4,7 @@ from drivers.models import Driver
 from couriers.models import Courier
 from orders.models import TaxiOrder, CourierOrder
 from django.http import JsonResponse
-from django.db.models import Avg
+from django.db.models import Avg, Count
 
 
 
@@ -88,4 +88,36 @@ def check_order_status(request):
 
 
 def client_profile(request):
-    return render(request,"clients/client_profile.html")
+    user = request.user
+
+    taxi_qs = TaxiOrder.objects.filter(client=user).order_by("-create_at")
+    active_taxi_order = taxi_qs.filter(status__in=["searching", "accepted", "on_the_way", "arrived"]).first()
+
+    completed_qs = taxi_qs.filter(status="completed")
+    recent_trips = taxi_qs[:5]
+
+    top_pickups = (
+        completed_qs
+        .values("pickup_address")
+        .annotate(total=Count("id"))
+        .order_by("-total", "pickup_address")[:3]
+    )
+    top_destination = (
+        completed_qs
+        .values("destination_address")
+        .annotate(total=Count("id"))
+        .order_by("-total", "destination_address")[:3]
+    )
+
+    context = {
+        "active_taxi_order": active_taxi_order,
+        "recent_trips": recent_trips,
+        "top_pickups": top_pickups,
+        "top_destination": top_destination,
+        "all_trips": taxi_qs.count(),
+        "completed_trips": completed_qs.count(),
+        "cancelled_trips": taxi_qs.filter(status="cancelled").count(),
+    }
+
+
+    return render(request,"clients/client_profile.html" , context)

@@ -15,6 +15,9 @@ from django.conf import settings
 from django.contrib import messages
 from decimal import Decimal
 from django.db.models import F
+from datetime import timedelta
+from django.utils import timezone
+
 
 
 User = get_user_model()
@@ -183,7 +186,24 @@ def order_complete(request):
 
 def driver_profile(request):
     driver = request.user.driver
-    comleted_orders = TaxiOrder.objects.filter(driver=driver,status="completed").count()
+    completed_orders_qs = TaxiOrder.objects.filter(driver=driver,status="completed")
+    comleted_orders = completed_orders_qs.count()
+
+    now = timezone.localtime()
+    start_of_day = now.replace(hour=0,minute=0,second=0,microsecond=0)
+    start_of_week = start_of_day - timedelta(days=now.weekday())
+    start_of_month = start_of_day.replace(day=1)
+    start_of_year = start_of_day.replace(month=1,day=1)
+
+    trip_starts = {
+        "day": completed_orders_qs.filter(create_at__gte=start_of_day).count(),
+        "week": completed_orders_qs.filter(create_at__gte=start_of_week).count(),
+        "month": completed_orders_qs.filter(create_at__gte=start_of_month).count(),
+        "year": completed_orders_qs.filter(create_at__gte=start_of_year).count(),
+        "all_time": comleted_orders,
+    }
+
+
     rated_orders = DriverRating.objects.filter(driver=driver).count()
     active_orders = TaxiOrder.objects.filter(driver=driver, status__in = ["accepted","on_the_way"]).first()
     bonus_goal = 10
@@ -199,6 +219,13 @@ def driver_profile(request):
     rating_bonus_percent = int((rating_bonus_progress / rating_bonus_goal) *100 )
     rating_bonus_left = rating_bonus_goal - rating_bonus_progress if rating_bonus_progress else rating_bonus_goal
 
+
+
+    ride_goal = 500
+    ride_reward = 5000
+    ride_progress = min(comleted_orders ,ride_goal )
+    ride_percent = int((ride_progress / ride_goal) *100 )
+    ride_left = max(0, ride_goal - comleted_orders)
 
     context = {
         "driver":driver,
@@ -217,6 +244,13 @@ def driver_profile(request):
         "rating_bonus_progress": rating_bonus_progress,
         "rating_bonus_percent": rating_bonus_percent,
         "rating_bonus_left": rating_bonus_left,
+        "trip_starts": trip_starts ,
+
+        "ride_goal": ride_goal,
+        "ride_reward": ride_reward,
+        "ride_progress": ride_progress,
+        "ride_percent": ride_percent,
+        "ride_left": ride_left,
     }
     return render(request,"drivers/driver_profile.html",context)
 
@@ -228,3 +262,7 @@ def driver_upload_photo(request):
         if form.is_valid():
             form.save()
     return redirect("driver_profile")
+
+
+
+
