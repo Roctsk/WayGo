@@ -109,6 +109,25 @@ def client_profile(request):
         .order_by("-total", "destination_address")[:3]
     )
 
+    courier_qs = CourierOrder.objects.filter(client=user).order_by("-create_at")
+    active_courier_order = courier_qs.filter(status__in=["searching", "accepted", "on_the_way", "arrived"]).first()
+
+    courier_completed_qs = courier_qs.filter(status="completed")
+    recent_courier_orders = courier_qs[:5]
+
+    courier_top_pickups = (
+        courier_completed_qs
+        .values("pickup_address")
+        .annotate(total=Count("id"))
+        .order_by("-total", "pickup_address")[:3]
+    )
+    courier_top_delivery = (
+        courier_completed_qs
+        .values("delivery_address")
+        .annotate(total=Count("id"))
+        .order_by("-total", "delivery_address")[:3]
+    )
+
     context = {
         "active_taxi_order": active_taxi_order,
         "recent_trips": recent_trips,
@@ -117,6 +136,13 @@ def client_profile(request):
         "all_trips": taxi_qs.count(),
         "completed_trips": completed_qs.count(),
         "cancelled_trips": taxi_qs.filter(status="cancelled").count(),
+
+        "active_courier_order": active_courier_order,
+        "recent_courier_orders": recent_courier_orders,
+        "courier_top_pickups": courier_top_pickups,
+        "courier_top_delivery": courier_top_delivery,
+        "all_courier_orders": courier_qs.count(),
+        "completed_courier_orders": courier_completed_qs.count(),
     }
 
 

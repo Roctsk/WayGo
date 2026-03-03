@@ -93,6 +93,84 @@ body {
     transform: translateY(-2px);
     box-shadow: 0 10px 25px rgba(251,191,36,.3);
 }
+
+
+
+
+
+
+.ride-card {
+    position: relative;
+    overflow: hidden;
+    border-radius: 20px;
+    padding: 22px;
+    background:
+        radial-gradient(1200px 300px at -10% -20%, rgba(246, 234, 59, 0.28), transparent 60%),
+        radial-gradient(800px 280px at 110% 120%, rgba(16, 185, 81, 0.2), transparent 60%),
+        linear-gradient(135deg, rgba(15,23,42,.95), rgba(2,6,23,.98));
+    border: 1px solid rgba(184, 148, 157, 0.25);
+    box-shadow: 0 20px 60px rgba(23, 2, 10, 0.55), inset 0 0 30px rgba(59,130,246,.08);
+}
+
+.ride-card::before {
+    content: "";
+    position: absolute;
+    top: -80%;
+    left: -20%;
+    width: 45%;
+    height: 260%;
+    background: linear-gradient(to right, transparent, rgba(255,255,255,.14), transparent);
+    transform: rotate(18deg);
+    animation: shine 4.5s linear infinite;
+}
+
+@keyframes shine {
+    from { transform: translateX(-260%) rotate(18deg); }
+    to   { transform: translateX(420%) rotate(18deg); }
+}
+
+.ride-title {
+    font-weight: 800;
+    letter-spacing: .3px;
+    color: #bfdbfe;
+}
+
+.ride-sub {
+    color:rgb(147, 253, 170);
+    font-size: .9rem;
+}
+
+.ride-track {
+    height: 14px;
+    border-radius: 999px;
+    background: rgba(255,255,255,.08);
+    overflow: hidden;
+}
+
+.ride-bar {
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg,rgb(191, 204, 11), #1d3ee,rgb(52, 211, 60));
+    box-shadow: 0 0 16px rgba(238, 224, 34, 0.55);
+    transition: width .6s ease;
+}
+
+.ride-number {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #e0f2fe;
+}
+
+.ride-badge {
+    display: inline-block;
+    font-size: .75rem;
+    padding: 4px 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(167,243,208,.5);
+    background: rgba(16,185,129,.15);
+    color: #a7f3d0;
+}
+
 </style>
 
 <div class="container driver-layout py-5">
@@ -100,20 +178,59 @@ body {
         <div class="col-12">
             <div class="stat-box">
                 <div class="small text-secondary">Баланс</div>
-                <div class="fs-5 fw-bold">0.00 ₴</div>
+                <div class="fs-5 fw-bold"> {{courier.balance}}</div>
             </div>
         </div>
+        <div class="row g-3 mt-1">
+            <div class="col-6 col-md">
+                <div class="stat-box text-center">
+                    <div class="small text-secondary">За день(виконано замовлень)</div>
+                    <div class="fs-6 fw-bold">{{ trip_starts.day }}</div>
+                </div>
+            </div>
+            <div class="col-6 col-md">
+                <div class="stat-box text-center">
+                    <div class="small text-secondary">За тиждень</div>
+                    <div class="fs-6 fw-bold">{{ trip_starts.week }}</div>
+                </div>
+            </div>
+            <div class="col-6 col-md">
+                <div class="stat-box text-center">
+                    <div class="small text-secondary">За місяць</div>
+                    <div class="fs-6 fw-bold">{{ trip_starts.month }}</div>
+                </div>
+            </div>
+            <div class="col-6 col-md">
+                <div class="stat-box text-center">
+                    <div class="small text-secondary">За рік </div>
+                    <div class="fs-6 fw-bold">{{ trip_starts.year }}</div>
+                </div>
+            </div>
+            <div class="col-6 col-md">
+                <div class="stat-box text-center">
+                    <div class="small text-secondary">За весь час </div>
+                    <div class="fs-6 fw-bold">{{ trip_starts.all_time }}</div>
+                </div>
+            </div>
+
+    </div>
 
         <div class="col-md-4 d-flex justify-content-center">
             <div class="profile-card text-center">
 
-                {% if courier.photo %}
-                    <img src="{{ courier.photo.url }}" class="profile-avatar">
-                {% else %}
-                    <div class="avatar-placeholder">
-                        {{ courier.user.username|slice:":1"|upper }}
-                    </div>
-                {% endif %}
+                <form method="post" action="{% url 'courier_upload_photo' %}" enctype="multipart/form-data" id="avatar-form">
+                    {% csrf_token %}
+                    <label for="avatar-input" style="cursor:pointer; display:inline-block;">
+                    {% if courier.photo %}
+                        <img src="{{ courier.photo.url }}"  class="profile-avatar" alt="Аватар">
+                    {% else %}
+                        <div class="avatar-placeholder">
+                            {{ courier.user.username|slice:":1"|upper }}
+                        </div>
+                    {% endif %}
+                    </label>
+                    <input id="avatar-input" type="file" name="photo" accept="image/*" style="display:none;">
+                </form>
 
                 <h3 class="mt-3">{{ courier.user.username }}</h3>
                 <p>&#9733; {{ rating_avg|floatformat:1 }}</p>
@@ -184,6 +301,89 @@ body {
 
         </div>
     </div>
-</div>
+     <div class="ride-card mt-3">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <div>
+                    <div class="ride-title">🚀 Легендарний квест: 500 поїздок</div>
+                    <div class="ride-sub">Нагорода: +{{ ride_reward }} грн</div>
+                </div>
+                <div class="ride-badge">
+                    {{ ride_progress }}/{{ ride_goal }}
+                </div>
+            </div>
 
+            <div class="ride-track mb-2">
+                <div class="ride-bar" style="width: {{ ride_percent }}%;"></div>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="small text-secondary">
+                    {% if courier.ride_500_for_paid %}
+                        Бонус вже виплачено ✅
+                    {% else %}
+                        Залишилось {{ ride_left }} замовлень
+                    {% endif %}
+                </div>
+                <div class="ride-number">{{ ride_percent }}%</div>
+            </div>
+        </div>
+
+
+        <div class="stat-box mt-3">
+            <div class="d-flex justify-content-between mb-2">
+                <div class="small text-secondary">Бонусний прогрес</div>
+                <div class="small text-warning">{{ bonus_progress }}/{{ bonus_goal }}</div>
+            </div>
+
+            <div class="progress" style="height: 10px; background: rgba(255,255,255,.08);">
+                <div class="progress-bar bg-warning"
+                    role="progressbar"
+                    style="width: {{ bonus_percent }}%;"
+                    aria-valuenow="{{ bonus_percent }}"
+                    aria-valuemin="0"
+                    aria-valuemax="100">
+                </div>
+            </div>
+
+            <div class="small text-secondary mt-2">
+                До бонусу {{ bonus_reward }} грн залишилось {{ bonus_left }} замовлень
+            </div>
+        </div>
+        <div class="small text-secondary mt-1">
+            Виплачено бонусів: {{ courier.bonus_for_paid }}
+        </div>
+
+        <div class="stat-box mt-3">
+            <div class="d-flex justify-content-between mb-2">
+                <div class="small text-secondary">Бонусний за рейтинг (середня >= 4.0)</div>
+                <div class="small text-success">{{ rating_bonus_progress }}/{{ rating_bonus_goal }}</div>
+            </div>
+
+            <div class="progress" style="height: 10px; background: rgba(255,255,255,.08);">
+                <div class="progress-bar bg-success"
+                    role="progressbar"
+                    style="width: {{ rating_bonus_percent }}%;"
+                    aria-valuenow="{{ rating_bonus_percent }}"
+                    aria-valuemin="0"
+                    aria-valuemax="100">
+                </div>
+            </div>
+
+            <div class="small text-secondary mt-2">
+                До бонусу {{ rating_bonus_reward }}  грн за рейтинг залишилось {{ rating_bonus_left }} оцінених поїздок
+            </div>
+        </div>
+        <div class="small text-secondary mt-1">
+               Оцінено замовлень: {{ rated_orders }}| Виплачено рейтинг-бонус циклів: {{ courier.rating_bonus_for_paid }}
+        </div>
+    </div>
+
+</div>
+<script>
+    document.getElementById("avatar-input").addEventListener("change", function(){
+        if (this.files.length){
+            document.getElementById("avatar-form").submit();
+        }
+    });
+</script>
 {% endblock %}

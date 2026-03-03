@@ -12,3 +12,9 @@ class CourierRegisterForm(forms.ModelForm):
     class Meta:
         model = Courier
         fields = ("transport",)
+
+
+class CourierPhotoForm(forms.ModelForm):
+    class Meta:
+        model = Courier
+        fields = ["photo"]

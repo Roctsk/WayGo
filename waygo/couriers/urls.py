@@ -12,6 +12,7 @@ urlpatterns = [
     path("order/complete/", views.courier_order_complete, name="courier_order_complete"),
     path('check-courier-status/', views.check_courier_status, name='check-courier-status'),
     path("couriers_profile/", views.courier_profile, name="couriers_profile"),
+    path("profile/photo/", views.courier_upload_photo, name="courier_upload_photo"),
 ]
 
 

@@ -170,6 +170,76 @@ body {
                 {% endif %}
             </div>
         </div>
+
+        <!-- Для курєрів -->
+
+
+        <hr>
+
+        <div class="col-12">
+            <div class="order-card-modern">
+                <h5 class="mb-3">Останні 5 замовлень</h5>
+                {% if recent_courier_orders %}
+                    <div class="table-responsive">
+                        <table class="table table-dark table-hover align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Дата</th>
+                                    <th>Звідки</th>
+                                    <th>Куди</th>
+                                    <th>Ціна</th>
+                                    <th>Статус</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for trip in recent_trips %}
+                                <tr>
+                                    <td>{{ trip.create_at|date:"d.m.Y H:i" }}</td>
+                                    <td>{{ trip.pickup_address }}</td>
+                                    <td>{{ trip.delivery_address }}</td>
+                                    <td>{{ trip.price|default:"-" }}</td>
+                                    <td>{{ trip.get_status_display }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-secondary">Ще немає поїздок</div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="stat-box h-100">
+                <h6 class="mb-2">Топ-3 звідки</h6>
+                {% if courier_top_pickups %}
+                    {% for item in courier_top_pickups %}
+                        <div class="d-flex justify-content-between py-1 border-bottom border-secondary">
+                            <span>{{ item.pickup_address }}</span>
+                            <span class="text-warning">{{ item.total }}</span>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-secondary">Немає даних</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="stat-box h-100">
+                <h6 class="mb-2">Топ-3 куди</h6>
+                {% if courier_top_delivery %}
+                    {% for item in courier_top_delivery %}
+                        <div class="d-flex justify-content-between py-1 border-bottom border-secondary">
+                            <span>{{ item.delivery_address }}</span>
+                            <span class="text-warning">{{ item.total }}</span>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-secondary">Немає даних</div>
+                {% endif %}
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}
