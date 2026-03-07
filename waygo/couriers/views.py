@@ -244,7 +244,7 @@ def check_courier_status(request):
 
 @login_required
 def courier_upload_photo(request):
-    courier = request.user.driver
+    courier = request.user.courier
     if request.method == "POST":
         form = CourierPhotoForm(request.POST, request.FILES , instance=courier)
         if form.is_valid():
