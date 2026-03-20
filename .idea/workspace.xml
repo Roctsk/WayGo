@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="449e03c9-f6d7-489c-9ae0-56cd8baecc70" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/waygo/clients/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/waygo/clients/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/waygo/db.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/waygo/db.sqlite3" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/waygo/orders/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/waygo/orders/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/waygo/templates/drivers/active_order.html" beforeDir="false" afterPath="$PROJECT_DIR$/waygo/templates/drivers/active_order.html" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 5
+}]]></component>
+  <component name="ProjectId" id="3BDQ33wuL5csh4sJKZUnj3YoVXw" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true"
+  }
+}]]></component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="449e03c9-f6d7-489c-9ae0-56cd8baecc70" name="Changes" comment="" />
+      <created>1774020963987</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1774020963987</updated>
+    </task>
+    <servers />
+  </component>
+</project>
