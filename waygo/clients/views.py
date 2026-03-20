@@ -5,6 +5,7 @@ from couriers.models import Courier
 from orders.models import TaxiOrder, CourierOrder
 from django.http import JsonResponse
 from django.db.models import Avg, Count
+import requests
 
 
 
@@ -23,6 +24,8 @@ def client_dashboard(request):
         client=request.user
     ).order_by("-create_at").first()
 
+
+
     can_rate_driver = False
     if (
         active_taxi_order
@@ -38,14 +41,41 @@ def client_dashboard(request):
         and active_courier_order.status in ["arrived", "completed"]
     ):
         can_rate_courier = not active_courier_order.courier.ratings.filter(order=active_courier_order).exists()
+
+
+        
     if request.method == "POST":
         form_type = request.POST.get("form_type")
 
         if form_type == "taxi":
+            pickup_lat = request.POST.get("pickup_lat") or None
+            pickup_lon = request.POST.get("pickup_lon") or None
+            if pickup_lon is None:
+                url = "https://nominatim.openstreetmap.org/search"
+                params = {
+                    "q":request.POST["pickup_address"], 
+                    "format": "json",
+                    "addressdetails": 1,
+                    "limit": 1
+                }
+
+                r = requests.get(url, params=params)
+                data = r.json()[0]
+
+                city = data["address"].get("city")
+                pickup_lat = data["lat"]
+                pickup_lon = data["lon"]
+            dest_lat = request.POST.get("dest_lat") or None
+            dest_lon = request.POST.get("dest_lon") or None
+
             TaxiOrder.objects.create(
                 client=request.user,
                 pickup_address=request.POST["pickup_address"],
                 destination_address=request.POST["destination_address"],
+                pickup_lat=pickup_lat,
+                pickup_lon=pickup_lon,
+                dest_lat=dest_lat,
+                dest_lon=dest_lon,
                 comment=request.POST.get("comment"),
                 city=request.POST["city"],
                 status="searching"

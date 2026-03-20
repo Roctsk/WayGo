@@ -56,9 +56,11 @@ try {
 const map = L.map('map').setView([49.8397, 24.0297], 13);
 
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap'
+    maxZoom: 19,
+    attribution: '&copy; OpenStreetMap contributors'
 }).addTo(map);
 
+console.log(coords);
 if (coords.pickup_lat && coords.pickup_lon && coords.dest_lat && coords.dest_lon) {
     const start = L.latLng(parseFloat(coords.pickup_lat), parseFloat(coords.pickup_lon));
     const end = L.latLng(parseFloat(coords.dest_lat), parseFloat(coords.dest_lon));

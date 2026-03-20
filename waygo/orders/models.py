@@ -22,6 +22,11 @@ class TaxiOrder(models.Model):
     destination_address = models.CharField(max_length=255)
     city = models.CharField(max_length=100)
     status = models.CharField(max_length=20,choices=STATUS_CHOICES,default="searching")
+    pickup_lat = models.FloatField(null=True, blank=True)
+    pickup_lon = models.FloatField(null=True, blank=True)
+
+    dest_lat = models.FloatField(null=True, blank=True)
+    dest_lon = models.FloatField(null=True, blank=True)
 
     create_at = models.DateTimeField(auto_now_add=True)
 
