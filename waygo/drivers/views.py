@@ -76,6 +76,16 @@ def driver_dashboard(request):
     ).first()
 
     if active_order:
+        if active_order.pickup_lat and active_order.pickup_lon and active_order.dest_lat and active_order.dest_lon:
+            active_order.price = calculate_price(
+                pickup_lat=active_order.pickup_lat,
+                pickup_lon=active_order.pickup_lon,
+                dest_lat=active_order.dest_lat,
+                dest_lon=active_order.dest_lon,
+            )
+        else:
+            active_order.price = Decimal("1.00")
+
         return render(request,"drivers/active_order.html",{"order":active_order,"driver":driver})
 
     orders  = TaxiOrder.objects.filter(
@@ -83,7 +93,18 @@ def driver_dashboard(request):
         city__iexact=driver.city
     )
 
-    return render(request,"drivers/dashboard.html",{"orders":orders,"driver":driver})
+    for order in orders:
+        if order.pickup_lat and order.pickup_lon and order.dest_lat and order.dest_lon:
+            order.price = calculate_price(
+                pickup_lat=order.pickup_lat,
+                pickup_lon=order.pickup_lon,
+                dest_lat=order.dest_lat,
+                dest_lon=order.dest_lon,
+            )
+        else:
+            order.price = Decimal("1.00")  # дефолтна ціна, якщо координат нема
+
+    return render(request, "drivers/dashboard.html", {"orders": orders, "driver": driver})
 
 
 
@@ -98,6 +119,9 @@ def accept_order(request,order_id):
 
     order = get_object_or_404(
         TaxiOrder, id=order_id,status="searching")
+    
+
+
 
     order.driver = driver
     order.status = "accepted"
@@ -119,19 +143,18 @@ def toggle_online(request):
 
 
 
-def calculate_price(pickup, destination):
-    API_KEY = settings.GOOGLE_MAPS_API_KEY
-    url = f"https://maps.googleapis.com/maps/api/directions/json?origin={pickup}&destination={destination}&key={API_KEY}"
+def calculate_price(pickup_lat, pickup_lon, dest_lat, dest_lon):
+    url = f"http://router.project-osrm.org/route/v1/driving/{pickup_lon},{pickup_lat};{dest_lon},{dest_lat}?overview=false"
+
     response = requests.get(url).json()
 
-    if response['status'] == 'OK':
-        distance_m = response['routes'][0]['legs'][0]['distance']['value']
+    if response.get('code') == 'Ok':  #
+        distance_m = response['routes'][0]['distance']
         distance_km = distance_m / 1000
         base_fare = 50
         per_km = 10 
-        return round(base_fare + per_km * distance_km, 2)
-    else:
-        return None
+        return Decimal(str(round(base_fare + per_km * distance_km, 2)))
+    return Decimal("1.00")
     
 
 
@@ -166,10 +189,25 @@ def order_complete(request):
         driver=request.user.driver,
         status="arrived"
     )
+
+    driver = order.driver
+
+    order.price  = calculate_price(
+        pickup_lat=order.pickup_lat,
+        pickup_lon=order.pickup_lon,
+        dest_lat=order.dest_lat,
+        dest_lon=order.dest_lon,
+    )
+
+
+    driver.balance += order.price
+    driver.save()
     order.status = "completed"
     order.save()
-    driver = order.driver
+
     comletes_count = TaxiOrder.objects.filter(driver=driver,status = "completed").count()
+
+    
 
     earned_steps = comletes_count // 10
     new_steps = earned_steps - driver.bonus_for_paid
@@ -202,10 +240,19 @@ def driver_profile(request):
         "year": completed_orders_qs.filter(create_at__gte=start_of_year).count(),
         "all_time": comleted_orders,
     }
+    active_orders = TaxiOrder.objects.filter(driver=driver, status__in = ["accepted","on_the_way"]).first()
 
+    if active_orders:
+        fare = calculate_price(
+            pickup_lat=active_orders.pickup_lat,
+            pickup_lon=active_orders.pickup_lon,
+            dest_lat=active_orders.dest_lat,
+            dest_lon=active_orders.dest_lon,
+        )
+    else:
+        fare = None
 
     rated_orders = DriverRating.objects.filter(driver=driver).count()
-    active_orders = TaxiOrder.objects.filter(driver=driver, status__in = ["accepted","on_the_way"]).first()
     bonus_goal = 10
     bonus_reward = 450
     bonus_progress = comleted_orders % bonus_goal
@@ -232,6 +279,7 @@ def driver_profile(request):
         "comleted_orders":comleted_orders,
         "active_orders":active_orders,
         "balance":driver.balance,
+        "current_fare":fare,
         "bonus_goal": bonus_goal,
         "bonus_reward": bonus_reward,
         "bonus_progress": bonus_progress,
