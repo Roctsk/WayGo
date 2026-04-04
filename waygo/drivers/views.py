@@ -128,7 +128,7 @@ def accept_order(request,order_id):
     order.save()
 
     messages.success(request, "Замовлення прийнято!")
-    return redirect("driver-dashboard")
+    return redirect("driver_dashboard")
 
 
 
@@ -167,7 +167,7 @@ def order_on_the_way(request):
     )
     order.status = "on_the_way"
     order.save()
-    return redirect("driver-dashboard")
+    return redirect("driver_dashboard")
 
 
 @login_required
@@ -179,7 +179,7 @@ def order_arrived(request):
     )
     order.status = "arrived"
     order.save()
-    return redirect("driver-dashboard")
+    return redirect("driver_dashboard")
 
 
 @login_required
@@ -219,7 +219,7 @@ def order_complete(request):
         )
 
 
-    return redirect("driver-dashboard")
+    return redirect("driver_dashboard")
 
 
 def driver_profile(request):

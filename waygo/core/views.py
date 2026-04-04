@@ -1,7 +1,6 @@
 from django.shortcuts import render , redirect
 from django.contrib.auth.views import LoginView
-from django.urls import reverse
-
+from django.urls import reverse_lazy
 
 def home(request):
     return render(request,"core/home.html")
@@ -14,13 +13,13 @@ class CastomLoginView(LoginView):
         user = self.request.user
 
         if user.role == "client":
-            return redirect("client_dashboard")
+            return reverse_lazy("client_dashboard")
         elif user.role == "driver":
-            return redirect("driver_dashboard")
+            return reverse_lazy("driver_dashboard")
         elif user.role == "courier":
-            return redirect("courier_dashboard")
+            return reverse_lazy("courier_dashboard")
         
-        return reverse("client-dashboard")
+        return reverse_lazy("client_dashboard") 
 
 
 
